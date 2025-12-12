@@ -1,0 +1,684 @@
+:root {
+  --accent-blue: #4F8AFF;
+  --error-red: #E94458;
+  --primary-blue: #5B9FFF;
+  --deep-blue: #4A8FEF;
+  --light-blue: #E8F1FF;
+
+  /* Grey Theme Background */
+  --bg-gradient-start: #8e9eab;
+  --bg-gradient-end: #2C3E50;
+
+  --white: #FFFFFF;
+  --text-dark: #2C3E50;
+  --text-blue: #5B9FFF;
+  --error-bg: #FFE5E8;
+  --shadow: rgba(0, 0, 0, 0.2);
+  --shadow-lg: rgba(0, 0, 0, 0.25);
+
+  /* Solid Grey for Header & Buttons */
+  --glass-bg: #455A64;
+  --glass-border: #546E7A;
+
+  --highlight-row-col: rgba(79, 138, 255, 0.08);
+  --highlight-box: rgba(79, 138, 255, 0.12);
+  --highlight-same: rgba(79, 138, 255, 0.15);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  min-height: 100vh;
+  color: var(--text-dark);
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Blurred Background Pseudo-element */
+body::before {
+  content: "";
+  position: fixed;
+  top: -20px;
+  left: -20px;
+  right: -20px;
+  bottom: -20px;
+  background: linear-gradient(180deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+  filter: blur(20px);
+  z-index: -1;
+}
+
+/* Home Page Styles */
+.page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  position: relative;
+  z-index: 10;
+}
+
+.center {
+  text-align: center;
+  max-width: 500px;
+  width: 100%;
+}
+
+.app-title {
+  color: var(--white);
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 700;
+  margin-bottom: 20px;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  letter-spacing: 0.02em;
+}
+
+.logo {
+  margin-bottom: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.logo-img {
+  width: 100%;
+  max-width: 300px;
+  height: auto;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.1));
+}
+
+.cta {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 40px;
+}
+
+.btn {
+  padding: 16px 32px;
+  border: none;
+  border-radius: 16px;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px var(--shadow);
+  text-decoration: none;
+  display: inline-block;
+}
+
+.btn.primary {
+  background: var(--white);
+  color: var(--accent-blue);
+}
+
+.btn.primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px var(--shadow-lg);
+}
+
+.btn.secondary {
+  background: var(--glass-bg);
+  color: var(--white);
+  border: 2px solid var(--white);
+}
+
+.btn.secondary:hover {
+  background: var(--white);
+  color: var(--accent-blue);
+}
+
+/* Play Page Styles */
+.game-container {
+  min-height: 100vh;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 40px;
+  position: relative;
+  z-index: 10;
+}
+
+/* Top Header with Solid Grey */
+.game-header {
+  width: 100%;
+  max-width: 450px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 16px 20px;
+
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.back-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: var(--white);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.back-btn .icon {
+  font-size: 20px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 5px;
+}
+
+.back-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.header-center {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.timer {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--white);
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pause-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: var(--white);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.pause-btn .icon {
+  font-size: 16px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pause-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+/* Action Buttons with Solid Grey */
+.action-buttons {
+  width: 100%;
+  max-width: 450px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.action-btn {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  padding: 16px;
+  color: var(--white);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+  min-height: 70px;
+  justify-content: center;
+}
+
+.action-btn:hover {
+  background: #546E7A;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.action-btn:active {
+  transform: translateY(0);
+}
+
+.action-btn.active {
+  background: var(--accent-blue);
+  border-color: var(--accent-blue);
+  box-shadow: 0 4px 16px rgba(79, 138, 255, 0.3);
+}
+
+.action-btn .icon {
+  width: 24px;
+  height: 24px;
+  stroke-width: 2;
+}
+
+/* Game Card - Glassmorphic */
+.game-card {
+  background: rgba(132, 155, 167, 0.25);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 0 8px 32px var(--shadow-lg);
+  width: 100%;
+  max-width: 450px;
+  margin-bottom: 20px;
+}
+
+/* Sudoku Grid - #546e7a with Darker Border */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  grid-template-rows: repeat(9, 1fr);
+  gap: 0;
+  background: #546e7a;
+  border: 4px solid #263238;
+  border-radius: 12px;
+  overflow: hidden;
+  aspect-ratio: 1;
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.cell {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: 600;
+  color: #FFFFFF;
+  background: #546e7a;
+  border: 1px solid #607d8b;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  position: relative;
+  user-select: none;
+}
+
+.cell:hover:not(.fixed) {
+  background: #607d8b;
+}
+
+/* Bold borders for 3x3 boxes */
+.cell.bold-right {
+  border-right: 2px solid #90a4ae;
+}
+
+.cell.bold-bottom {
+  border-bottom: 2px solid #90a4ae;
+}
+
+.cell.fixed {
+  color: #cfd8dc;
+  font-weight: 700;
+  cursor: default;
+  background: #455A64;
+}
+
+.cell.selected {
+  background: var(--accent-blue) !important;
+  color: var(--white) !important;
+  border: 2px solid var(--accent-blue);
+  z-index: 3;
+  box-shadow: 0 0 0 2px rgba(79, 138, 255, 0.2);
+}
+
+/* Smart Highlighting */
+.cell.highlight-row-col {
+  background: rgba(79, 138, 255, 0.15) !important;
+  z-index: 1;
+}
+
+.cell.highlight-box {
+  background: rgba(79, 138, 255, 0.2) !important;
+  z-index: 1;
+}
+
+.cell.highlight-same {
+  background: rgba(79, 138, 255, 0.25) !important;
+  color: var(--accent-blue) !important;
+  font-weight: 700;
+  z-index: 2;
+}
+
+/* Error highlighting */
+.cell.error {
+  background: var(--error-bg) !important;
+  color: var(--error-red) !important;
+  animation: shake 0.4s ease;
+  z-index: 4;
+}
+
+.cell.error-highlight {
+  background: rgba(233, 68, 88, 0.1) !important;
+}
+
+/* Solving animation */
+.cell.solving {
+  animation: fillIn 0.3s ease;
+}
+
+/* Pencil marks */
+.cell .pencil-marks {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  font-size: 8px;
+  color: #cfd8dc;
+  opacity: 0.6;
+}
+
+.cell .pencil-mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@keyframes shake {
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  25% {
+    transform: translateX(-3px);
+  }
+
+  75% {
+    transform: translateX(3px);
+  }
+}
+
+@keyframes fillIn {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+
+  50% {
+    transform: scale(1.1);
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Smart Input Panel */
+.smart-input-panel {
+  width: 100%;
+  max-width: 450px;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+  padding: 0 10px;
+}
+
+.number-btn {
+  aspect-ratio: 1;
+  border-radius: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.2);
+  color: var(--white);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  min-height: 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+}
+
+.number-btn .number {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.number-btn .count {
+  font-size: 11px;
+  font-weight: 500;
+  opacity: 0.8;
+}
+
+.number-btn:hover:not(.completed) {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.number-btn:active:not(.completed) {
+  transform: translateY(0);
+}
+
+.number-btn.selected {
+  background: var(--accent-blue);
+  border-color: var(--accent-blue);
+  box-shadow: 0 4px 16px rgba(79, 138, 255, 0.4);
+}
+
+.number-btn.completed {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.15);
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.number-btn.completed .number {
+  text-decoration: line-through;
+}
+
+.erase-btn {
+  grid-column: span 1;
+  background: rgba(233, 68, 88, 0.2);
+  border-color: rgba(233, 68, 88, 0.3);
+}
+
+.erase-btn:hover {
+  background: rgba(233, 68, 88, 0.3);
+}
+
+.erase-btn .icon {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
+  margin-bottom: 4px;
+}
+
+.erase-btn span {
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* Hide smart input panel on desktop/laptop, show only on mobile */
+@media (min-width: 769px) {
+  .smart-input-panel {
+    display: none !important;
+  }
+}
+
+/* Mobile Responsive */
+@media (max-width: 480px) {
+  .app-title {
+    font-size: clamp(1.75rem, 6vw, 2.5rem);
+    margin-bottom: 16px;
+  }
+
+  .game-container {
+    padding: 16px;
+    padding-top: 30px;
+  }
+
+  .logo {
+    margin-bottom: 30px;
+  }
+
+  .logo-img {
+    max-width: 200px;
+  }
+
+  .game-header {
+    max-width: 100%;
+    padding: 12px 16px;
+  }
+
+  .timer {
+    font-size: 16px;
+  }
+
+  .back-btn,
+  .pause-btn {
+    width: 36px;
+    height: 36px;
+  }
+
+  .back-btn .icon {
+    font-size: 18px;
+  }
+
+  .pause-btn .icon {
+    font-size: 14px;
+  }
+
+  .action-buttons {
+    max-width: 100%;
+    gap: 8px;
+  }
+
+  .action-btn {
+    padding: 12px 8px;
+    font-size: 11px;
+    min-height: 60px;
+    border-radius: 12px;
+  }
+
+  .action-btn .icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  .game-card {
+    max-width: 100%;
+    padding: 16px;
+    border-radius: 20px;
+  }
+
+  .grid {
+    max-width: 100%;
+  }
+
+  .cell {
+    font-size: 18px;
+  }
+
+  .smart-input-panel {
+    max-width: 100%;
+    gap: 8px;
+    padding: 0;
+  }
+
+  .number-btn {
+    min-height: 50px;
+    border-radius: 12px;
+  }
+
+  .number-btn .number {
+    font-size: 20px;
+  }
+
+  .number-btn .count {
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 360px) {
+  .cell {
+    font-size: 16px;
+  }
+
+  .number-btn {
+    min-height: 45px;
+  }
+
+  .number-btn .number {
+    font-size: 18px;
+  }
+
+  .action-btn {
+    font-size: 10px;
+    min-height: 55px;
+  }
+}
+
+/* Utility Classes */
+.hidden {
+  display: none !important;
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

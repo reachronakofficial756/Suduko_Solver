@@ -1,0 +1,12 @@
+{
+  "appId": "com.suduko.master",
+  "appName": "Suduko Master",
+  "webDir": "frontend",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "http",
+    "cleartext": true,
+    "allowNavigation": ["http://*/*", "https://*/*"]
+  }
+}
+

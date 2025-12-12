@@ -1,0 +1,10 @@
+{
+  "name": "Suduko Master",
+  "short_name": "Suduko",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#455A64",
+  "theme_color": "#4F8AFF",
+  "icons": []
+}
+

@@ -1,0 +1,52 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Build outputs
+android/app/build/
+android/build/
+android/.gradle/
+*.apk
+*.aab
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Environment
+.env
+.env.local
+
+# Capacitor generated
+android/app/src/main/assets/public/
+android/app/src/main/assets/capacitor.config.json
+android/app/src/main/assets/capacitor.plugins.json
+
+# Temporary files
+*.tmp
+*.bak
+
+# Python virtual environment
+venv/
+env/
+ENV/
+
+# Android specific (already covered by android/.gitignore but keeping for clarity)
+android/app/src/main/res/
+android/app/src/main/assets/public/
+
