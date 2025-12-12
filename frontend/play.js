@@ -1,6 +1,6 @@
 // Production backend URL - Update this with your hosted backend URL
 // To deploy: See DEPLOYMENT_GUIDE.md or run deploy-backend.sh for instructions
-const PRODUCTION_API = 'YOUR_BACKEND_URL_HERE'; // Replace with your deployed backend URL (e.g., https://suduko-backend.onrender.com)
+const PRODUCTION_API = 'https://suduko-solver-8y24.onrender.com'; // Deployed backend on Render
 
 const DEFAULT_APIS = [
   PRODUCTION_API, // Try production first
