@@ -11,6 +11,11 @@ const DEFAULT_APIS = [
 ];
 let API_BASE = localStorage.getItem('api_base') || PRODUCTION_API;
 
+// Init Theme
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme) document.body.setAttribute('data-theme', savedTheme);
+
+
 let puzzle = null;
 let solution = null;
 let current = null;

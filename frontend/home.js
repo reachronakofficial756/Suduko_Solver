@@ -18,12 +18,27 @@
   const savedTheme = localStorage.getItem('theme');
   if (savedTheme) document.body.setAttribute('data-theme', savedTheme);
 
-  themeToggle?.addEventListener('click', () => {
-    const cur = document.body.getAttribute('data-theme') || 'light';
-    const next = cur === 'light' ? 'dark' : 'light';
-    document.body.setAttribute('data-theme', next);
-    localStorage.setItem('theme', next);
-  });
+  // Theme Toggle Functionality
+  if (themeToggle) {
+    // Initialize state
+    if (savedTheme === 'dark') {
+      themeToggle.classList.add('active');
+    }
+
+    themeToggle.addEventListener('click', () => {
+      const cur = document.body.getAttribute('data-theme') || 'light';
+      const next = cur === 'light' ? 'dark' : 'light';
+      document.body.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+      
+      // Toggle button active state
+      if (next === 'dark') {
+        themeToggle.classList.add('active');
+      } else {
+        themeToggle.classList.remove('active');
+      }
+    });
+  }
 
   // Difficulty Dropdown Functionality
   difficultySelect?.addEventListener('change', (e) => {
