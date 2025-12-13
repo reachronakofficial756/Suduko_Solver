@@ -448,7 +448,7 @@
   }
   
   .bottom-modal-header h2 {
-    color: #2C3E50;
+    color: #3C3C3C;
     font-size: 20px;
     font-weight: 700;
     margin: 0;
@@ -494,13 +494,13 @@
   }
   
   .difficulty-name {
-    color: #2C3E50;
+    color: #3C3C3C;
     font-size: 16px;
     font-weight: 600;
   }
   
   .difficulty-badge {
-    background: #2C3E50;
+    background: #3C3C3C;
     color: var(--white);
     padding: 4px 10px;
     border-radius: 12px;
