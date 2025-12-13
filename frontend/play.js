@@ -655,13 +655,13 @@ function main() {
 
   wireInputPanel();
   newGame();
-  
+
   // Initialize background music - start on any page interaction
   const backgroundMusic = document.getElementById('backgroundMusic');
   if (backgroundMusic) {
     const soundEnabled = localStorage.getItem('soundEnabled') !== 'false';
     backgroundMusic.volume = 0.3; // Set volume to 30%
-    
+
     // Start music on first user interaction (anywhere on page, not just settings button)
     let musicStarted = false;
     const startMusicOnInteraction = () => {
@@ -673,18 +673,57 @@ function main() {
         });
       }
     };
-    
+
     // Try to start on multiple events (using once: true ensures it only fires once)
     document.addEventListener('click', startMusicOnInteraction, { once: true });
     document.addEventListener('touchstart', startMusicOnInteraction, { once: true });
     document.addEventListener('keydown', startMusicOnInteraction, { once: true });
-    
+
     // Also try on window load (might work in some browsers)
     if (document.readyState === 'complete') {
       startMusicOnInteraction();
     } else {
       window.addEventListener('load', startMusicOnInteraction, { once: true });
     }
+  }
+
+  // Performance toggle for mobile
+  const performanceToggleBtn = $('performanceToggleBtn');
+  if (performanceToggleBtn) {
+    performanceToggleBtn.addEventListener('click', () => {
+      const statsCard = document.querySelector('.stats-card');
+      if (statsCard) {
+        statsCard.classList.toggle('active');
+        performanceToggleBtn.classList.toggle('active');
+      }
+    });
+
+    // Close stats card when clicking outside (on the backdrop)
+    document.addEventListener('click', (e) => {
+      const statsCard = document.querySelector('.stats-card');
+      if (statsCard && statsCard.classList.contains('active')) {
+        // Check if click is on the backdrop (stats-card itself, not its children)
+        if (e.target === statsCard) {
+          statsCard.classList.remove('active');
+          performanceToggleBtn.classList.remove('active');
+        }
+      }
+    });
+  }
+
+  // Close button for stats card (mobile)
+  const statsCloseBtn = $('statsCloseBtn');
+  if (statsCloseBtn) {
+    statsCloseBtn.addEventListener('click', () => {
+      const statsCard = document.querySelector('.stats-card');
+      const performanceBtn = $('performanceToggleBtn');
+      if (statsCard) {
+        statsCard.classList.remove('active');
+      }
+      if (performanceBtn) {
+        performanceBtn.classList.remove('active');
+      }
+    });
   }
 }
 

@@ -207,44 +207,81 @@ body::before {
 
 /* Play Page Styles */
 .game-container {
-  min-height: 100vh;
-  padding: 20px;
+  height: 100vh;
+  padding: 10px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-top: 40px;
+  justify-content: space-between;
   position: relative;
   z-index: 10;
+  overflow: hidden;
+  /* No scrollbar */
 }
 
-/* Top Header with Solid Grey */
-.game-header {
+/* New Column Header with Logo and Timer */
+.game-header-column {
   width: 100%;
   max-width: 450px;
+  margin-bottom: 8px;
+}
+
+.header-top {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
-  padding: 16px 20px;
-
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
-  border-radius: 20px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  margin-bottom: 6px;
 }
 
-.header-left {
+.header-logo {
+  width: 100px;
+  height: 100px;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2));
+}
+
+.header-actions {
   display: flex;
+  gap: 8px;
   align-items: center;
-  gap: 12px;
+}
+
+.performance-toggle-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  color: var(--white);
+  cursor: pointer;
+  display: none;
+  /* Hidden on desktop */
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.performance-toggle-btn .icon {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
+}
+
+.performance-toggle-btn:hover {
+  background: #546E7A;
+  transform: translateY(-1px);
+}
+
+.performance-toggle-btn.active {
+  background: var(--accent-blue);
+  border-color: var(--accent-blue);
 }
 
 .back-btn {
   width: 40px;
   height: 40px;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
   color: var(--white);
   cursor: pointer;
   display: flex;
@@ -264,36 +301,16 @@ body::before {
 }
 
 .back-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: #546E7A;
   transform: translateY(-1px);
-}
-
-.header-center {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.timer {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--white);
-  font-variant-numeric: tabular-nums;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.header-right {
-  display: flex;
-  align-items: center;
-  gap: 12px;
 }
 
 .pause-btn {
   width: 40px;
   height: 40px;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
   color: var(--white);
   cursor: pointer;
   display: flex;
@@ -311,8 +328,25 @@ body::before {
 }
 
 .pause-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: #546E7A;
   transform: translateY(-1px);
+}
+
+.timer-display {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  padding: 8px 16px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.timer {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--white);
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* Action Buttons with Solid Grey */
@@ -321,25 +355,25 @@ body::before {
   max-width: 450px;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
-  margin-bottom: 20px;
+  gap: 8px;
+  margin-bottom: 8px;
 }
 
 .action-btn {
   background: var(--glass-bg);
   border: 1px solid var(--glass-border);
-  border-radius: 16px;
-  padding: 16px;
+  border-radius: 12px;
+  padding: 10px;
   color: var(--white);
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   cursor: pointer;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   transition: all 0.2s ease;
-  min-height: 70px;
+  min-height: 60px;
   justify-content: center;
 }
 
@@ -371,12 +405,12 @@ body::before {
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 24px;
-  padding: 24px;
+  border-radius: 20px;
+  padding: 16px;
   box-shadow: 0 8px 32px var(--shadow-lg);
   width: 100%;
   max-width: 450px;
-  margin-bottom: 20px;
+  margin-bottom: 0;
 }
 
 /* Sudoku Grid - #546e7a with Darker Border */
@@ -665,23 +699,8 @@ body::before {
   }
 }
 
-/* Tablet Responsive */
-@media (min-width: 481px) and (max-width: 768px) {
-  .page {
-    padding: 20px;
-  }
-
-  .center {
-    max-width: 400px;
-  }
-
-  .logo-img {
-    max-width: 180px;
-  }
-}
-
-/* Mobile Responsive */
-@media (max-width: 480px) {
+/* Mobile & Tablet Responsive (Same layout for both) */
+@media (max-width: 768px) {
   .page {
     padding: 16px;
   }
@@ -735,16 +754,28 @@ body::before {
 
   .game-container {
     padding: 16px;
-    padding-top: 30px;
+    padding-top: 16px;
+    overflow: visible;
+    /* Allow scrolling on mobile/tablet */
+    height: auto;
+    /* Remove fixed height */
   }
 
-  .game-header {
+  .game-header-column {
     max-width: 100%;
-    padding: 12px 16px;
+  }
+
+  .header-logo {
+    width: 80px;
+    height: 80px;
+  }
+
+  .timer-display {
+    padding: 10px 16px;
   }
 
   .timer {
-    font-size: 16px;
+    font-size: 20px;
   }
 
   .back-btn,
@@ -792,10 +823,17 @@ body::before {
     font-size: 18px;
   }
 
+  /* Number pad below grid (not fixed) */
   .smart-input-panel {
+    position: relative;
     max-width: 100%;
     gap: 8px;
-    padding: 0;
+    padding: 12px;
+    margin-top: 12px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   }
 
   .number-btn {
@@ -809,6 +847,49 @@ body::before {
 
   .number-btn .count {
     font-size: 10px;
+  }
+
+  /* Show performance button on mobile */
+  .performance-toggle-btn {
+    display: flex !important;
+  }
+
+  /* Hide stats card by default on mobile */
+  .stats-card {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    max-width: 100%;
+    max-height: 100%;
+    z-index: 2000;
+    border-radius: 0;
+    padding: 20px;
+    overflow-y: auto;
+  }
+
+  /* Show stats card when active */
+  .stats-card.active {
+    display: block;
+  }
+
+  /* Backdrop for stats overlay */
+  .stats-card::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: -1;
+  }
+
+  /* Show close button on mobile */
+  .stats-close-btn {
+    display: flex !important;
   }
 }
 
@@ -903,11 +984,14 @@ body::before {
 /* Main Content Wrapper - Side by side on desktop, stacked on mobile */
 .game-content-wrapper {
   display: flex;
-  gap: 20px;
+  gap: 16px;
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
   align-items: flex-start;
+  justify-content: space-between;
+  flex: 1;
+  overflow: hidden;
 }
 
 .game-area {
@@ -915,51 +999,79 @@ body::before {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
+  gap: 8px;
+  justify-content: space-between;
+  overflow: hidden;
 }
 
 /* Stats Card Styling */
 .stats-card {
   width: 100%;
-  max-width: 320px;
+  max-width: 300px;
   background: var(--glass-bg);
   border: 1px solid var(--glass-border);
-  border-radius: 20px;
-  padding: 24px;
+  border-radius: 16px;
+  padding: 16px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
   position: sticky;
-  top: 20px;
+  top: 10px;
+  overflow-y: auto;
+  max-height: calc(100vh - 20px);
 }
 
 .stats-header {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 24px;
-  padding-bottom: 16px;
+  gap: 10px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  justify-content: space-between;
 }
 
 .stats-icon {
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   stroke: var(--white);
   flex-shrink: 0;
 }
 
 .stats-header h3 {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 700;
   color: var(--white);
   margin: 0;
+  flex: 1;
+}
+
+.stats-close-btn {
+  display: none;
+  /* Hidden on desktop */
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: var(--white);
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0;
+  align-items: center;
+  justify-content: center;
+}
+
+.stats-close-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
 }
 
 /* Strain Score Section */
 .strain-score-container {
   background: rgba(255, 255, 255, 0.05);
-  border-radius: 16px;
-  padding: 20px;
-  margin-bottom: 24px;
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 16px;
   text-align: center;
 }
 
@@ -1010,16 +1122,16 @@ body::before {
 .stats-metrics {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 10px;
 }
 
 .metric {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px;
+  gap: 10px;
+  padding: 10px;
   background: rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
+  border-radius: 10px;
   transition: all 0.2s ease;
 }
 
@@ -1059,26 +1171,7 @@ body::before {
   font-variant-numeric: tabular-nums;
 }
 
-/* Responsive Layout - Mobile First */
-@media (max-width: 1024px) {
-  .game-content-wrapper {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .stats-card {
-    max-width: 450px;
-    position: relative;
-    top: 0;
-    order: 2;
-    /* Stats card appears after game on mobile */
-  }
-
-  .game-area {
-    order: 1;
-  }
-}
-
+/* Responsive Layout - Tablet & Mobile use overlay */
 @media (max-width: 768px) {
   .stats-card {
     max-width: 100%;
