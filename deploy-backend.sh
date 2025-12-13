@@ -21,3 +21,4 @@ echo ""
 echo "After deployment, update frontend/play.js with your URL"
 echo "Then run: npx cap sync android && cd android && ./gradlew assembleDebug"
 
+
