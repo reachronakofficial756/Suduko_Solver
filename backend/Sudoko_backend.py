@@ -63,10 +63,16 @@ class SudokuSolver:
         return None
 
     def _is_valid_placement(self, grid: Grid, row: int, col: int, num: int) -> bool:
-        if num in grid[row]:
-            return False
-        if num in [grid[i][col] for i in range(9)]:
-            return False
+        """Optimized validation - avoids list creation for better performance."""
+        # Check row
+        for i in range(9):
+            if grid[row][i] == num:
+                return False
+        # Check column
+        for i in range(9):
+            if grid[i][col] == num:
+                return False
+        # Check 3x3 box
         br, bc = 3 * (row // 3), 3 * (col // 3)
         for i in range(br, br + 3):
             for j in range(bc, bc + 3):
@@ -113,6 +119,58 @@ class SudokuSolver:
         self.stop_game_timer()
         self.start_game_timer()
 
+    def generate_stepwise_path(self) -> List[Tuple[int, int, int]]:
+        """
+        Generate a stepwise path of moves for animation.
+        Returns a list of tuples (row, col, value) representing the solving steps.
+        This captures the moves made by the solver during auto-solve.
+        """
+        return self.moves_made_by_solver.copy()
+
+    def get_puzzle_stats(self) -> dict:
+        """
+        Get statistics about the current puzzle state.
+        Returns: dict with filled_count, empty_count, completion_percentage, total_cells
+        """
+        filled = sum(1 for r in range(9) for c in range(9) if self.current_grid[r][c] != 0)
+        total = 81
+        empty = total - filled
+        percentage = (filled / total) * 100 if total > 0 else 0
+        return {
+            "filled_count": filled,
+            "empty_count": empty,
+            "total_cells": total,
+            "completion_percentage": round(percentage, 2)
+        }
+
+    def is_puzzle_complete(self) -> bool:
+        """
+        Check if the puzzle is completely filled (no empty cells).
+        """
+        return all(self.current_grid[r][c] != 0 for r in range(9) for c in range(9))
+
+    def is_puzzle_correct(self) -> bool:
+        """
+        Check if the current puzzle state matches the solution.
+        """
+        return self.current_grid == self.solution_grid
+
+    def get_valid_numbers_for_cell(self, row: int, col: int) -> List[int]:
+        """
+        Get all valid numbers that can be placed in a specific cell.
+        Returns list of valid numbers (1-9) for the given cell position.
+        """
+        if not (0 <= row < 9 and 0 <= col < 9):
+            return []
+        if self.current_grid[row][col] != 0:
+            return []
+        
+        valid_nums = []
+        for num in range(1, 10):
+            if self._is_valid_placement(self.current_grid, row, col, num):
+                valid_nums.append(num)
+        return valid_nums
+
 
 # =========================================
 # Intelli Tools (Utilities)
@@ -136,8 +194,7 @@ def auto_solve_whole(solver: SudokuSolver) -> Tuple[bool, float]:
         solver.stop_game_timer()
     return ok, elapsed
 
-def verify_solution(solver: SudokuSolver) -> bool:
-    return solver.current_grid == solver.solution_grid
+# Removed: verify_solution() - use is_puzzle_correct() instead (same functionality, better naming)
 
 def get_hint_and_apply(solver: SudokuSolver) -> bool:
     empty_pos = solver._find_empty(solver.current_grid)
@@ -147,6 +204,37 @@ def get_hint_and_apply(solver: SudokuSolver) -> bool:
         solver.make_user_move(r, c, correct_num)
         return True
     return False
+
+def generate_stepwise_path(solver: SudokuSolver) -> List[Tuple[int, int, int]]:
+    """
+    For animation: returns the entire "movie" of the solver's thinking as a list of steps.
+    Each step is a tuple (row, col, value) representing a move made during solving.
+    """
+    return solver.generate_stepwise_path()
+
+def get_puzzle_stats(solver: SudokuSolver) -> dict:
+    """
+    Get statistics about the current puzzle state.
+    """
+    return solver.get_puzzle_stats()
+
+def is_puzzle_complete(solver: SudokuSolver) -> bool:
+    """
+    Check if the puzzle is completely filled.
+    """
+    return solver.is_puzzle_complete()
+
+def is_puzzle_correct(solver: SudokuSolver) -> bool:
+    """
+    Check if the current puzzle state matches the solution.
+    """
+    return solver.is_puzzle_correct()
+
+def get_valid_numbers_for_cell(solver: SudokuSolver, row: int, col: int) -> List[int]:
+    """
+    Get all valid numbers that can be placed in a specific cell.
+    """
+    return solver.get_valid_numbers_for_cell(row, col)
 
 
 # =========================================
@@ -342,7 +430,7 @@ def run_integration_test(difficulty: Optional[str] = None):
 
     # Auto solve
     ok, t = auto_solve_whole(solver)
-    if ok and verify_solution(solver):
+    if ok and is_puzzle_correct(solver):
         print(f"✅ Auto-Solve Passed in {t:.4f}s and verified.")
         print_board(solver.current_grid, "Solved Board")
 
