@@ -21,20 +21,12 @@
       </svg>
     </button>
     <main class="center">
-      <h1 class="app-title">Sudoku Master</h1>
+      <img src="./Name_Logo.svg" alt="Sudoku Master" class="logo-img" />
       <div class="logo">
         <img src="./Suduko_logo.svg" alt="Sudoku Logo" class="logo-img" />
       </div>
       <div class="cta">
         <button class="btn primary" id="playGameBtn">Play Game</button>
-        <div class="difficulty-container desktop-only">
-          <label for="difficultySelect" class="difficulty-label">Difficulty:</label>
-          <select id="difficultySelect" class="difficulty-dropdown">
-            <option value="easy">Easy</option>
-            <option value="medium" selected>Medium</option>
-            <option value="hard">Hard</option>
-          </select>
-        </div>
         <button id="howToPlayBtn" class="btn how-to-play-btn">How to Play Sudoku</button>
       </div>
     </main>
@@ -49,20 +41,13 @@
       </div>
       <div class="modal-body">
         <div class="settings-item volume-item">
-  <label class="settings-label">Volume</label>
+          <label class="settings-label">Volume</label>
 
-  <div class="volume-control">
-    <span id="volumeIcon" class="volume-icon">🔊</span>
-    <input
-      type="range"
-      id="volumeSlider"
-      min="0"
-      max="100"
-      value="50"
-      class="volume-slider"
-    />
-  </div>
-</div>
+          <div class="volume-control">
+            <span id="volumeIcon" class="volume-icon">🔊</span>
+            <input type="range" id="volumeSlider" min="0" max="100" value="50" class="volume-slider" />
+          </div>
+        </div>
 
         <!-- About Us Button -->
         <button id="aboutUsBtn" class="settings-action-btn">About Us</button>
@@ -138,8 +123,9 @@
       <div class="modal-body how-to-play-body">
         <div class="how-to-play-content">
           <h3>Objective</h3>
-          <p>Fill the 9×9 grid with digits so that each column, each row, and each of the nine 3×3 subgrids (also called "boxes" or "regions") contains all of the digits from 1 to 9.</p>
-          
+          <p>Fill the 9×9 grid with digits so that each column, each row, and each of the nine 3×3 subgrids (also called
+            "boxes" or "regions") contains all of the digits from 1 to 9.</p>
+
           <h3>Rules</h3>
           <ol>
             <li><strong>Each row</strong> must contain the numbers 1-9 exactly once.</li>
@@ -147,7 +133,7 @@
             <li><strong>Each 3×3 box</strong> must contain the numbers 1-9 exactly once.</li>
             <li>You cannot change the numbers that are already filled in (these are shown in a different color).</li>
           </ol>
-          
+
           <h3>Tips</h3>
           <ul>
             <li>Start by looking for rows, columns, or boxes that have many numbers already filled in.</li>
