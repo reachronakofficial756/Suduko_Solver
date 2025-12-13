@@ -23,16 +23,14 @@
         <img src="./Suduko_logo.svg" alt="Sudoku Logo" class="logo-img" />
       </div>
       <div class="cta">
-        <div class="play-row">
-          <a class="btn primary" href="./play.html">Play Game</a>
-          <div class="difficulty-container">
-            <label for="difficultySelect" class="difficulty-label">Difficulty:</label>
-            <select id="difficultySelect" class="difficulty-dropdown">
-              <option value="easy">Easy</option>
-              <option value="medium" selected>Medium</option>
-              <option value="hard">Hard</option>
-            </select>
-          </div>
+        <button class="btn primary" id="playGameBtn">Play Game</button>
+        <div class="difficulty-container desktop-only">
+          <label for="difficultySelect" class="difficulty-label">Difficulty:</label>
+          <select id="difficultySelect" class="difficulty-dropdown">
+            <option value="easy">Easy</option>
+            <option value="medium" selected>Medium</option>
+            <option value="hard">Hard</option>
+          </select>
         </div>
         <button id="howToPlayBtn" class="btn how-to-play-btn">How to Play Sudoku</button>
       </div>
@@ -47,13 +45,21 @@
         <button class="modal-close" id="closeModal">&times;</button>
       </div>
       <div class="modal-body">
-        <!-- Sound Toggle -->
-        <div class="settings-item">
-          <label class="settings-label">Sound</label>
-          <button id="soundToggle" class="toggle-btn">
-            <span class="toggle-slider"></span>
-          </button>
-        </div>
+        <div class="settings-item volume-item">
+  <label class="settings-label">Volume</label>
+
+  <div class="volume-control">
+    <span id="volumeIcon" class="volume-icon">🔊</span>
+    <input
+      type="range"
+      id="volumeSlider"
+      min="0"
+      max="100"
+      value="50"
+      class="volume-slider"
+    />
+  </div>
+</div>
 
         <!-- About Us Button -->
         <button id="aboutUsBtn" class="settings-action-btn">About Us</button>
@@ -90,6 +96,31 @@
       </div>
       <div class="modal-footer">
         <span class="version-text">v1.0</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- New Game Modal (Bottom Sheet) -->
+  <div id="newGameModal" class="modal bottom-modal">
+    <div class="modal-overlay"></div>
+    <div class="bottom-modal-content">
+      <div class="bottom-modal-handle"></div>
+      <div class="bottom-modal-header">
+        <h2>New Game</h2>
+      </div>
+      <div class="bottom-modal-body">
+        <button class="difficulty-option" data-difficulty="easy">
+          <span class="difficulty-name">Easy</span>
+          <span class="difficulty-badge">Lvl</span>
+        </button>
+        <button class="difficulty-option" data-difficulty="medium">
+          <span class="difficulty-name">Medium</span>
+          <span class="difficulty-badge">Lv2</span>
+        </button>
+        <button class="difficulty-option" data-difficulty="hard">
+          <span class="difficulty-name">Hard</span>
+          <span class="difficulty-badge">Lv3</span>
+        </button>
       </div>
     </div>
   </div>

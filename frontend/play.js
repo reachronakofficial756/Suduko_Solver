@@ -324,7 +324,10 @@ async function newGame() {
       }
     }
   }
-  const difficulty = localStorage.getItem('difficulty') || 'medium';
+  // Get difficulty from URL parameter first, then localStorage
+  const urlParams = new URLSearchParams(window.location.search);
+  const difficulty = urlParams.get('difficulty') || localStorage.getItem('difficulty') || 'medium';
+  localStorage.setItem('difficulty', difficulty); // Save to localStorage for consistency
   try {
     let res = await fetch(`${API_BASE}/api/generate?difficulty=${encodeURIComponent(difficulty)}`);
     if (!res.ok) {
