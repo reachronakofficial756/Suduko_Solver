@@ -251,25 +251,15 @@ body::before {
   filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.2));
 }
 
-/* Main Content Wrapper - Responsive Grid */
+/* Main Content Wrapper - 3 Column Layout */
 .game-content-wrapper {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr 320px 320px;
   gap: 20px;
-  margin-top: 20px;
+  margin-top: 80px;
   max-width: 1600px;
   margin-left: auto;
   margin-right: auto;
-}
-
-/* Desktop 3-Column Grid */
-@media (min-width: 1025px) {
-  .game-content-wrapper {
-    display: grid;
-    grid-template-columns: 1fr 320px 320px;
-    align-items: start;
-    margin-top: 80px;
-  }
 }
 
 /* Left Column - Game Area */
@@ -1177,53 +1167,49 @@ body::before {
   border-bottom: none;
 }
 
-/* Hide smart input panel on desktop/laptop (> 1024px), show only on mobile/tablet */
-@media (min-width: 1025px) {
+/* Hide smart input panel on desktop/laptop, show only on mobile */
+@media (min-width: 769px) {
   .smart-input-panel {
     display: none !important;
   }
-
-  /* Minimize gap for desktop as requested */
-  .game-content-wrapper {
-    gap: 8px !important;
-  }
 }
 
-@media (min-width: 1025px) {
+/* Desktop Enhancements */
+@media (min-width: 769px) {
   .page {
-    padding: 10px;
-    /* Reduced padding */
-    height: 100vh;
-    overflow: hidden;
-    align-items: flex-start;
-    /* Align top */
+    padding: 30px;
   }
 
   .center {
-    padding: 24px;
-    max-width: 420px;
-  }
-
-  .logo {
-    margin-bottom: 8px;
-    padding: 4px;
-  }
-
-  .logo-img {
-    max-width: 140px;
-    /* Smaller logo */
+    max-width: 480px;
+    /* Glassmorphic Container Box */
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 24px;
+    padding: 48px 40px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
   }
 
   .app-title {
-    font-size: 1.8rem;
-    margin-bottom: 8px;
+    font-size: clamp(2rem, 4vw, 2.75rem);
+  }
+
+  .logo-img {
+    max-width: 220px;
+  }
+
+  .btn {
+    padding: 14px 28px;
+    font-size: 16px;
   }
 
   .settings-btn {
-    top: 10px;
-    right: 10px;
-    width: 36px;
-    height: 36px;
+    top: 24px;
+    right: 24px;
+    width: 48px;
+    height: 48px;
   }
 
   .settings-btn .icon {
@@ -1232,8 +1218,40 @@ body::before {
   }
 }
 
-/* Mobile & Tablet Responsive (Same layout for both) */
-@media (max-width: 768px) {
+/* Tablet Responsive */
+@media (min-width: 481px) and (max-width: 768px) {
+  .page {
+    padding: 20px;
+  }
+
+  .center {
+    max-width: 400px;
+  }
+
+  .logo-img {
+    max-width: 180px;
+  }
+
+  .game-content-wrapper {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .floating-logo {
+    width: 140px;
+  }
+}
+
+/* Desktop Medium */
+@media (min-width: 769px) and (max-width: 1200px) {
+  .game-content-wrapper {
+    grid-template-columns: 1fr 280px 280px;
+    gap: 16px;
+  }
+}
+
+/* Mobile Responsive */
+@media (max-width: 480px) {
   .page {
     padding: 16px;
   }
@@ -1250,172 +1268,135 @@ body::before {
     width: 18px;
     height: 18px;
   }
-}
 
-/* Tablet (769px - 1024px) Specifics */
-@media (min-width: 769px) and (max-width: 1024px) {
-  .page {
-    padding: 20px;
-    height: 100vh;
-    /* Fit to screen if possible */
-    overflow: hidden;
+  .center {
+    max-width: 100%;
   }
-}
 
-/* Mobile & Tablet General (Stacked vs Horizontal separation) */
+  .app-title {
+    font-size: clamp(1.5rem, 5vw, 2rem);
+    margin-bottom: 10px;
+  }
 
+  .logo {
+    margin-bottom: 20px;
+    padding: 15px;
+  }
 
-.center {
-  max-width: 100%;
-}
+  .logo::before {
+    width: 220px;
+    height: 220px;
+  }
 
-.app-title {
-  font-size: clamp(1.5rem, 5vw, 2rem);
-  margin-bottom: 10px;
-}
+  .logo-img {
+    max-width: 160px;
+  }
 
-.logo {
-  margin-bottom: 20px;
-  padding: 15px;
-}
+  .cta {
+    gap: 10px;
+    margin-top: 20px;
+  }
 
-.logo::before {
-  width: 220px;
-  height: 220px;
-}
-
-.logo-img {
-  max-width: 160px;
-}
-
-.cta {
-  gap: 10px;
-  margin-top: 20px;
-}
-
-.btn {
-  padding: 10px 20px;
-  font-size: 14px;
-  border-radius: 10px;
-}
-
-.game-container {
-  padding: 16px;
-  padding-top: 16px;
-  overflow: visible;
-  /* Allow scrolling on mobile/tablet */
-  height: auto;
-  /* Remove fixed height */
-}
-
-.game-header-column {
-  max-width: 100%;
-}
-
-.header-logo {
-  width: 80px;
-  height: 80px;
-}
-
-.game-header {
-  max-width: 100%;
-  padding: 12px 16px;
-}
-
-.timer {
-  font-size: 16px;
-}
-
-.back-btn,
-.pause-btn {
-  width: 36px;
-  height: 36px;
-}
-
-.back-btn .icon {
-  font-size: 18px;
-}
-
-.pause-btn .icon {
-  font-size: 14px;
-}
-
-.action-buttons {
-  max-width: 100%;
-  gap: 8px;
-}
-
-.action-btn {
-  padding: 12px 8px;
-  font-size: 11px;
-  min-height: 60px;
-  border-radius: 12px;
-}
-
-.action-btn .icon {
-  width: 20px;
-  height: 20px;
-}
-
-.game-card {
-  max-width: 100%;
-  padding: 16px;
-  border-radius: 20px;
-}
-
-.grid {
-  max-width: 100%;
-}
-
-.cell {
-  font-size: 18px;
-}
-
-.smart-input-panel {
-  max-width: 100%;
-  gap: 8px;
-  padding: 0;
-}
-
-.number-btn {
-  min-height: 50px;
-  border-radius: 12px;
-}
-
-.number-btn .number {
-  font-size: 20px;
-}
-
-.number-btn .count {
-  font-size: 10px;
-}
-
-/* Tablet Layout (769px - 1024px) */
-@media (min-width: 769px) and (max-width: 1024px) {
-  .game-content-wrapper {
-    flex-direction: column;
-    /* Stacked for tablet to fit new cards */
-    align-items: center;
-    gap: 24px;
-    margin-top: 40px;
+  .btn {
+    padding: 10px 20px;
+    font-size: 14px;
+    border-radius: 10px;
   }
 
   .game-container {
-    height: auto;
-    overflow-y: auto;
+    padding: 16px;
+    padding-top: 30px;
   }
 
-  /* Adjust cards for tablet width */
+  .floating-logo {
+    top: 2px;
+    left: 16px;
+    width: 120px;
+  }
+
+  .game-content-wrapper {
+    grid-template-columns: 1fr;
+    margin-top: 60px;
+    gap: 16px;
+  }
+
   .stats-card,
-  .right-column-cards {
-    width: 100%;
-    max-width: 600px;
-    /* Wider cards on tablet */
+  .stepwise-card,
+  .rules-card {
+    max-height: none;
   }
 
-  .game-area {
-    width: 100%;
-    max-width: 600px;
+  .game-header {
+    max-width: 100%;
+    padding: 12px 16px;
+  }
+
+  .timer {
+    font-size: 16px;
+  }
+
+  .back-btn,
+  .pause-btn {
+    width: 36px;
+    height: 36px;
+  }
+
+  .back-btn .icon {
+    font-size: 18px;
+  }
+
+  .pause-btn .icon {
+    font-size: 14px;
+  }
+
+  .action-buttons {
+    max-width: 100%;
+    gap: 8px;
+  }
+
+  .action-btn {
+    padding: 12px 8px;
+    font-size: 11px;
+    min-height: 60px;
+    border-radius: 12px;
+  }
+
+  .action-btn .icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  .game-card {
+    max-width: 100%;
+    padding: 16px;
+    border-radius: 20px;
+  }
+
+  .grid {
+    max-width: 100%;
+  }
+
+  .cell {
+    font-size: 18px;
+  }
+
+  .smart-input-panel {
+    max-width: 100%;
+    gap: 8px;
+    padding: 0;
+  }
+
+  .number-btn {
+    min-height: 50px;
+    border-radius: 12px;
+  }
+
+  .number-btn .number {
+    font-size: 20px;
+  }
+
+  .number-btn .count {
+    font-size: 10px;
   }
 }
 
@@ -1505,21 +1486,31 @@ body::before {
   }
 }
 
-/* ===== PLAYER STATS CARD ===== */
-
-/* Main Content Wrapper - Side by side on desktop, stacked on mobile */
-/* Conflict Resolution: Removed duplicate .game-content-wrapper definition here. 
-   See top of file/media queries for layout logic. */
-
-
-.game-area {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
+/* Difficulty Selection Modal */
+.difficulty-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10000;
   align-items: center;
-  gap: 8px;
-  justify-content: space-between;
-  overflow: hidden;
+  justify-content: center;
+}
+
+.difficulty-modal.active {
+  display: flex;
+}
+
+.difficulty-modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(8px);
 }
 
 .difficulty-modal-content {
@@ -1609,39 +1600,53 @@ body::before {
   margin-bottom: 4px;
 }
 
-/* Responsive Layout - Tablet & Mobile use overlay */
-@media (max-width: 768px) {
-  .stats-card {
-    max-width: 100%;
-    padding: 20px;
-  }
-
-  .strain-value {
-    font-size: 40px;
-  }
-
-  .stats-metrics {
-    gap: 12px;
-  }
-
-  .metric {
-    padding: 10px;
-  }
-
-  .metric-icon {
-    font-size: 20px;
-    width: 36px;
-    height: 36px;
-  }
-
-  .metric-value {
-    font-size: 16px;
-  }
+.option-desc {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
 }
 
-@media (max-width: 480px) {
-  .game-content-wrapper {
-    gap: 16px;
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.modal-btn {
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.cancel-btn {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--white);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.cancel-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.submit-btn {
+  background: var(--accent-blue);
+  color: var(--white);
+}
+
+.submit-btn:hover {
+  background: #5B9FFF;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(79, 138, 255, 0.4);
+}
+
+/* Mobile responsive */
+@media (max-width: 600px) {
+  .difficulty-options {
+    grid-template-columns: 1fr;
+    gap: 10px;
   }
 
   .difficulty-modal-content {
