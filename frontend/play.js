@@ -31,59 +31,53 @@ let pencilMode = false;
 let pencilMarks = {}; // Store pencil marks for each cell
 
 // ===== PLAYER PERFORMANCE TRACKING =====
-const GRACE_PERIOD_MS = 3000; // 3 seconds grace period for quick corrections
-
 let playerStats = {
   totalMoves: 0,
   totalMoveTime: 0,
   lastMoveTime: Date.now(),
   undoCount: 0,
-  correctionsPerCell: {}, // Track how many times each cell was changed (after grace period)
+  mistakes: 0,
   hintsUsed: 0,
   strainScore: 0
 };
 
-// Track when each cell was last modified (for grace period)
-let cellPlacementTimestamps = {};
+// Track user's move history for stepwise display
+let userMoveHistory = [];
 
 function resetPlayerStats() {
+  userMoveHistory = []; // Clear move history
   playerStats = {
     totalMoves: 0,
     totalMoveTime: 0,
     lastMoveTime: Date.now(),
     undoCount: 0,
-    correctionsPerCell: {},
+    mistakes: 0,
     hintsUsed: 0,
     strainScore: 0
   };
-  cellPlacementTimestamps = {};
   updateStatsDisplay();
 }
 
-function trackMove(row, col) {
+function trackMove(row, col, value) {
   const now = Date.now();
   const moveTime = now - playerStats.lastMoveTime;
-  const key = `${row},${col}`;
 
   playerStats.totalMoves++;
   playerStats.totalMoveTime += moveTime;
   playerStats.lastMoveTime = now;
 
-  // Check if this cell was modified before
-  const lastPlacementTime = cellPlacementTimestamps[key];
+  // Record this move in user history (for stepwise display)
+  userMoveHistory.push({
+    row: row,
+    col: col,
+    value: value,
+    timestamp: now
+  });
 
-  if (lastPlacementTime) {
-    const timeSinceLastPlacement = now - lastPlacementTime;
-
-    // Only count as correction if outside grace period
-    if (timeSinceLastPlacement > GRACE_PERIOD_MS) {
-      playerStats.correctionsPerCell[key] = (playerStats.correctionsPerCell[key] || 0) + 1;
-    }
-    // If within grace period, it's just a quick fix - don't punish!
+  // Check if the placed number is wrong (doesn't match solution)
+  if (value !== 0 && solution && solution[row] && solution[row][col] !== value) {
+    playerStats.mistakes++;
   }
-
-  // Update the timestamp for this cell
-  cellPlacementTimestamps[key] = now;
 
   calculateStrainScore();
   updateStatsDisplay();
@@ -107,40 +101,26 @@ function calculateStrainScore() {
     return;
   }
 
-  // Calculate average time per move (in seconds)
   const avgTimePerMove = (playerStats.totalMoveTime / playerStats.totalMoves) / 1000;
-
-  // Calculate undo rate (percentage)
   const undoRate = (playerStats.undoCount / playerStats.totalMoves) * 100;
-
-  // Calculate average corrections per cell
-  const totalCorrections = Object.values(playerStats.correctionsPerCell).reduce((a, b) => a + b, 0);
-  const avgCorrections = totalCorrections / Math.max(Object.keys(playerStats.correctionsPerCell).length, 1);
-
-  // Calculate hint dependency (percentage)
+  const mistakeRate = (playerStats.mistakes / playerStats.totalMoves) * 100;
   const hintDependency = (playerStats.hintsUsed / Math.max(playerStats.totalMoves, 1)) * 100;
 
-  // Strain score formula (0-100)
-  // Higher values = more strain/difficulty
   let strain = 0;
 
-  // Time factor (0-30 points): slower = more strain
-  // 0-5s = 0 points, 5-15s = linear, 15s+ = 30 points
+  // Time factor (0-30 points)
   const timeFactor = Math.min(30, Math.max(0, (avgTimePerMove - 5) * 3));
   strain += timeFactor;
 
-  // Undo factor (0-25 points): more undos = more strain
-  // 0-10% = 0 points, 10-50% = linear, 50%+ = 25 points
-  const undoFactor = Math.min(25, Math.max(0, (undoRate - 10) * 0.625));
+  // Undo factor (0-20 points)
+  const undoFactor = Math.min(20, Math.max(0, (undoRate - 10) * 0.5));
   strain += undoFactor;
 
-  // Correction factor (0-25 points): more corrections = more strain
-  // 1 correction = 0 points, 2-5 = linear, 5+ = 25 points
-  const correctionFactor = Math.min(25, Math.max(0, (avgCorrections - 1) * 6.25));
-  strain += correctionFactor;
+  // Mistake factor (0-30 points) - Higher weight for mistakes
+  const mistakeFactor = Math.min(30, Math.max(0, (mistakeRate - 5) * 0.75));
+  strain += mistakeFactor;
 
-  // Hint factor (0-20 points): more hints = more strain
-  // 0-5% = 0 points, 5-25% = linear, 25%+ = 20 points
+  // Hint factor (0-20 points)
   const hintFactor = Math.min(20, Math.max(0, (hintDependency - 5) * 1));
   strain += hintFactor;
 
@@ -159,52 +139,37 @@ function getStrainDescription(score) {
 }
 
 function updateStatsDisplay() {
-  // Update strain score
   const strainScoreEl = $('strainScore');
   const strainFillEl = $('strainFill');
   const strainDescEl = $('strainDescription');
 
-  if (strainScoreEl) {
-    strainScoreEl.textContent = playerStats.strainScore;
-  }
+  if (strainScoreEl) strainScoreEl.textContent = playerStats.strainScore;
+  if (strainFillEl) strainFillEl.style.width = `${playerStats.strainScore}%`;
+  if (strainDescEl) strainDescEl.textContent = getStrainDescription(playerStats.strainScore);
 
-  if (strainFillEl) {
-    strainFillEl.style.width = `${playerStats.strainScore}%`;
-  }
-
-  if (strainDescEl) {
-    strainDescEl.textContent = getStrainDescription(playerStats.strainScore);
-  }
-
-  // Update average time per move
   const avgTimeEl = $('avgTimePerMove');
   if (avgTimeEl && playerStats.totalMoves > 0) {
     const avgTime = (playerStats.totalMoveTime / playerStats.totalMoves) / 1000;
     avgTimeEl.textContent = `${avgTime.toFixed(1)}s`;
   }
 
-  // Update undo rate
   const undoRateEl = $('undoRate');
   if (undoRateEl && playerStats.totalMoves > 0) {
     const rate = (playerStats.undoCount / playerStats.totalMoves) * 100;
     undoRateEl.textContent = `${rate.toFixed(0)}%`;
   }
 
-  // Update corrections
-  const correctionsEl = $('corrections');
-  if (correctionsEl) {
-    const total = Object.values(playerStats.correctionsPerCell).reduce((a, b) => a + b, 0);
-    correctionsEl.textContent = total;
+  const mistakesEl = $('mistakes');
+  if (mistakesEl) {
+    mistakesEl.textContent = playerStats.mistakes;
   }
 
-  // Update hint dependency
   const hintDepEl = $('hintDependency');
   if (hintDepEl && playerStats.totalMoves > 0) {
     const dep = (playerStats.hintsUsed / playerStats.totalMoves) * 100;
     hintDepEl.textContent = `${dep.toFixed(0)}%`;
   }
 }
-
 
 function $(id) { return document.getElementById(id); }
 
@@ -366,9 +331,9 @@ function applyNumber(n) {
   const prev = current[r][c];
   if (prev === n) return;
 
-  if (!isValidPlacement(current, r, c, n)) {
+  // Allow placement even if invalid, but show warning
+  if (!isValidPlacement(current, r, c, n) && n !== 0) {
     highlightError(r, c);
-    return;
   }
 
   undoStack.push({ r, c, prev });
@@ -377,8 +342,15 @@ function applyNumber(n) {
   const cell = document.querySelectorAll('.cell')[idx];
   cell.textContent = n ? String(n) : '';
 
+  // Highlight wrong numbers in red
+  if (n !== 0 && solution && solution[r] && solution[r][c] !== n) {
+    cell.classList.add('wrong-number');
+  } else {
+    cell.classList.remove('wrong-number');
+  }
+
   // Track the move for performance stats
-  trackMove(r, c);
+  trackMove(r, c, n);
 
   updateDigitCounts();
   applySmartHighlighting(r, c);
@@ -392,9 +364,15 @@ function undo() {
   const cell = document.querySelectorAll('.cell')[idx];
   cell.textContent = last.prev ? String(last.prev) : '';
 
-  // Track undo for performance stats
-  trackUndo();
+  // Re-check if previous value is wrong
+  const prev = last.prev;
+  if (prev !== 0 && solution && solution[last.r] && solution[last.r][last.c] !== prev) {
+    cell.classList.add('wrong-number');
+  } else {
+    cell.classList.remove('wrong-number');
+  }
 
+  trackUndo();
   updateDigitCounts();
 }
 
@@ -405,10 +383,6 @@ async function hint() {
     if (data.has_hint) {
       const { row, col, value } = data;
       selected = [row, col];
-
-      // Track hint usage for performance stats
-      trackHint();
-
       applyNumber(value);
     }
   } catch (e) { console.error(e); }
@@ -516,10 +490,22 @@ async function newGame() {
       }
     }
   }
-  // Get difficulty from URL parameter first, then localStorage
-  const urlParams = new URLSearchParams(window.location.search);
-  const difficulty = urlParams.get('difficulty') || localStorage.getItem('difficulty') || 'medium';
-  localStorage.setItem('difficulty', difficulty); // Save to localStorage for consistency
+
+  // Show difficulty modal instead of prompt
+  showDifficultyModal();
+}
+
+// Function to actually start the game with selected difficulty
+async function startGameWithDifficulty(difficulty) {
+  // Save difficulty to localStorage
+  localStorage.setItem('difficulty', difficulty);
+
+  // Update mode display
+  const modeDisplay = $('currentMode');
+  if (modeDisplay) {
+    modeDisplay.textContent = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
+  }
+
   try {
     let res = await fetch(`${API_BASE}/api/generate?difficulty=${encodeURIComponent(difficulty)}`);
     if (!res.ok) {
@@ -538,10 +524,7 @@ async function newGame() {
     undoStack = [];
     isPaused = false;
     $('pauseBtn').textContent = '⏸';
-
-    // Reset player stats for new game
     resetPlayerStats();
-
     buildGrid();
     resetTimer();
   } catch (e) {
@@ -661,74 +644,176 @@ function main() {
   wireInputPanel();
   newGame();
 
-  // Initialize background music - start on any page interaction
-  const backgroundMusic = document.getElementById('backgroundMusic');
-  if (backgroundMusic) {
-    const soundEnabled = localStorage.getItem('soundEnabled') !== 'false';
-    backgroundMusic.volume = 0.3; // Set volume to 30%
+  // Initialize mode display
+  const currentDifficulty = localStorage.getItem('difficulty') || 'medium';
+  const modeDisplay = $('currentMode');
+  if (modeDisplay) {
+    modeDisplay.textContent = currentDifficulty.charAt(0).toUpperCase() + currentDifficulty.slice(1);
+  }
 
-    // Start music on first user interaction (anywhere on page, not just settings button)
-    let musicStarted = false;
-    const startMusicOnInteraction = () => {
-      if (!musicStarted && soundEnabled) {
-        backgroundMusic.play().then(() => {
-          musicStarted = true;
-        }).catch(err => {
-          console.log('Music start error:', err);
-        });
+  // Stepwise user move history
+  const getStepsBtn = $('getStepsBtn');
+  if (getStepsBtn) {
+    getStepsBtn.addEventListener('click', () => {
+      if (userMoveHistory.length === 0) {
+        alert('No moves made yet! Start playing to see your move history.');
+        return;
       }
-    };
 
-    // Try to start on multiple events (using once: true ensures it only fires once)
-    document.addEventListener('click', startMusicOnInteraction, { once: true });
-    document.addEventListener('touchstart', startMusicOnInteraction, { once: true });
-    document.addEventListener('keydown', startMusicOnInteraction, { once: true });
+      // Convert user move history to display format
+      const steps = userMoveHistory.map(move => [move.row, move.col, move.value]);
 
-    // Also try on window load (might work in some browsers)
-    if (document.readyState === 'complete') {
-      startMusicOnInteraction();
-    } else {
-      window.addEventListener('load', startMusicOnInteraction, { once: true });
+      displayStepwiseSolution(steps);
+      $('stepCount').textContent = `${userMoveHistory.length} moves`;
+    });
+  }
+
+  function displayStepwiseSolution(steps) {
+    const stepwiseList = $('stepwiseList');
+    if (!stepwiseList) return;
+
+    stepwiseList.innerHTML = '';
+
+    steps.forEach((step, index) => {
+      const [row, col, value] = step;
+      const stepItem = document.createElement('div');
+      stepItem.className = 'step-item';
+
+      const stepNumber = document.createElement('div');
+      stepNumber.className = 'step-number';
+      stepNumber.textContent = index + 1;
+
+      const stepInfo = document.createElement('div');
+      stepInfo.className = 'step-info';
+
+      const stepPosition = document.createElement('div');
+      stepPosition.className = 'step-position';
+      stepPosition.textContent = `Row ${row + 1}, Col ${col + 1}`;
+
+      const stepValue = document.createElement('div');
+      stepValue.className = 'step-value';
+      if (value === 0) {
+        stepValue.textContent = 'Erased';
+        stepValue.style.color = '#888';
+      } else {
+        // Check if move was correct
+        const isCorrect = solution && solution[row] && solution[row][col] === value;
+        if (isCorrect) {
+          stepValue.textContent = `Place ${value} ✓`;
+          stepValue.style.color = '#4caf50';
+        } else {
+          stepValue.textContent = `Place ${value} ✗`;
+          stepValue.style.color = '#ef5350';
+        }
+      }
+
+      stepInfo.appendChild(stepPosition);
+      stepInfo.appendChild(stepValue);
+      stepItem.appendChild(stepNumber);
+      stepItem.appendChild(stepInfo);
+      stepwiseList.appendChild(stepItem);
+    });
+
+    // Initialize navigation
+    initStepNavigation();
+  }
+
+  let currentStepIndex = 0;
+  let allSteps = [];
+
+  function initStepNavigation() {
+    const stepNavUp = $('stepNavUp');
+    const stepNavDown = $('stepNavDown');
+    const stepwiseList = $('stepwiseList');
+
+    if (!stepNavUp || !stepNavDown || !stepwiseList) return;
+
+    allSteps = Array.from(stepwiseList.querySelectorAll('.step-item'));
+    currentStepIndex = 0;
+
+    if (allSteps.length > 0) {
+      stepNavUp.disabled = false;
+      stepNavDown.disabled = false;
+      updateStepView();
+    }
+
+    stepNavUp.addEventListener('click', () => {
+      if (currentStepIndex > 0) {
+        currentStepIndex--;
+        updateStepView();
+      }
+    });
+
+    stepNavDown.addEventListener('click', () => {
+      if (currentStepIndex < allSteps.length - 2) {
+        currentStepIndex++;
+        updateStepView();
+      }
+    });
+  }
+
+  function updateStepView() {
+    const stepNavUp = $('stepNavUp');
+    const stepNavDown = $('stepNavDown');
+
+    // Hide all steps
+    allSteps.forEach(step => step.style.display = 'none');
+
+    // Show only 2 steps starting from currentStepIndex
+    for (let i = currentStepIndex; i < Math.min(currentStepIndex + 2, allSteps.length); i++) {
+      allSteps[i].style.display = 'flex';
+    }
+
+    // Update button states
+    stepNavUp.disabled = currentStepIndex === 0;
+    stepNavDown.disabled = currentStepIndex >= allSteps.length - 2;
+  }
+
+  // Difficulty modal controls
+  const difficultyModal = $('difficultyModal');
+  const submitDifficultyBtn = $('submitDifficultyBtn');
+  const cancelDifficultyBtn = $('cancelDifficultyBtn');
+
+  function showDifficultyModal() {
+    if (difficultyModal) {
+      difficultyModal.classList.add('active');
     }
   }
 
-  // Performance toggle for mobile
-  const performanceToggleBtn = $('performanceToggleBtn');
-  if (performanceToggleBtn) {
-    performanceToggleBtn.addEventListener('click', () => {
-      const statsCard = document.querySelector('.stats-card');
-      if (statsCard) {
-        statsCard.classList.toggle('active');
-        performanceToggleBtn.classList.toggle('active');
-      }
-    });
+  function hideDifficultyModal() {
+    if (difficultyModal) {
+      difficultyModal.classList.remove('active');
+    }
+  }
 
-    // Close stats card when clicking outside (on the backdrop)
-    document.addEventListener('click', (e) => {
-      const statsCard = document.querySelector('.stats-card');
-      if (statsCard && statsCard.classList.contains('active')) {
-        // Check if click is on the backdrop (stats-card itself, not its children)
-        if (e.target === statsCard) {
-          statsCard.classList.remove('active');
-          performanceToggleBtn.classList.remove('active');
-        }
+  // Make showDifficultyModal globally accessible
+  window.showDifficultyModal = showDifficultyModal;
+
+  if (submitDifficultyBtn) {
+    submitDifficultyBtn.addEventListener('click', () => {
+      const selectedDifficulty = document.querySelector('input[name="difficulty"]:checked');
+      if (selectedDifficulty) {
+        const difficulty = selectedDifficulty.value;
+        hideDifficultyModal();
+        startGameWithDifficulty(difficulty);
       }
     });
   }
 
-  // Close button for stats card (mobile)
-  const statsCloseBtn = $('statsCloseBtn');
-  if (statsCloseBtn) {
-    statsCloseBtn.addEventListener('click', () => {
-      const statsCard = document.querySelector('.stats-card');
-      const performanceBtn = $('performanceToggleBtn');
-      if (statsCard) {
-        statsCard.classList.remove('active');
-      }
-      if (performanceBtn) {
-        performanceBtn.classList.remove('active');
-      }
+  if (cancelDifficultyBtn) {
+    cancelDifficultyBtn.addEventListener('click', () => {
+      hideDifficultyModal();
     });
+  }
+
+  // Close modal on overlay click
+  if (difficultyModal) {
+    const overlay = difficultyModal.querySelector('.difficulty-modal-overlay');
+    if (overlay) {
+      overlay.addEventListener('click', () => {
+        hideDifficultyModal();
+      });
+    }
   }
 }
 

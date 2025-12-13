@@ -11,32 +11,24 @@
 
 <body>
   <div class="game-container">
+    <!-- Logo in top-left corner -->
+    <img src="./Name_Logo.svg" alt="Sudoku Logo" class="floating-logo" />
+
     <!-- Main Content Wrapper (Game + Stats) -->
     <div class="game-content-wrapper">
       <!-- Left Side: Game Area -->
       <div class="game-area">
-        <!-- Top Header with Logo and Timer (Column Layout) -->
-        <div class="game-header-column">
-          <div class="header-top">
-            <a href="./index.html" class="back-btn">
-              <span class="icon">←</span>
-            </a>
-            <img src="./Name_Logo.svg" alt="Sudoku Logo" class="header-logo" />
-            <div class="header-actions">
-              <button class="performance-toggle-btn" id="performanceToggleBtn" title="View Performance">
-                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path
-                    d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M8.5 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM20 8v6M23 11h-6" />
-                </svg>
-              </button>
-              <button class="pause-btn" id="pauseBtn">
-                <span class="icon">⏸</span>
-              </button>
-            </div>
-          </div>
+        <!-- Unified Header Bar: Back | Timer | Pause -->
+        <div class="game-header-bar">
+          <a href="./index.html" class="back-btn">
+            <span class="icon">←</span>
+          </a>
           <div class="timer-display">
             <span class="timer" id="timer">00:00</span>
           </div>
+          <button class="pause-btn" id="pauseBtn">
+            <span class="icon">⏸</span>
+          </button>
         </div>
 
         <!-- Action Buttons (4 buttons in a row) -->
@@ -72,6 +64,11 @@
         <!-- Game Card with Grid -->
         <div class="game-card">
           <div id="grid" class="grid"></div>
+        </div>
+
+        <!-- Mode Display -->
+        <div class="mode-display">
+          MODE: <span id="currentMode">Medium</span>
         </div>
 
         <!-- Smart Input Panel (Below grid on mobile/tablet) -->
@@ -121,14 +118,13 @@
         </div>
       </div>
 
-      <!-- Right Side: Player Stats Card -->
+      <!-- Middle Column: Performance Stats Card -->
       <div class="stats-card">
         <div class="stats-header">
           <svg class="stats-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M8.5 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM20 8v6M23 11h-6" />
           </svg>
-          <h3>Your Performance</h3>
-          <button class="stats-close-btn" id="statsCloseBtn" title="Close">×</button>
+          <h3>Your Performance In Current Game</h3>
         </div>
 
         <div class="strain-score-container">
@@ -157,11 +153,11 @@
             </div>
           </div>
 
-          <div class="metric" title="Quick corrections within 3 seconds aren't counted">
-            <div class="metric-icon">✏️</div>
+          <div class="metric" title="Wrong numbers placed during the game">
+            <div class="metric-icon">❌</div>
             <div class="metric-content">
-              <div class="metric-label">Corrections</div>
-              <div class="metric-value" id="corrections">0</div>
+              <div class="metric-label">Mistakes</div>
+              <div class="metric-value" id="mistakes">0</div>
             </div>
           </div>
 
@@ -170,6 +166,96 @@
             <div class="metric-content">
               <div class="metric-label">Hint Dependency</div>
               <div class="metric-value" id="hintDependency">0%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Cards Container -->
+      <div class="right-column-cards">
+        <!-- User Move History Card -->
+        <div class="stepwise-card">
+          <div class="stepwise-header">
+            <svg class="stepwise-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path
+                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+            </svg>
+            <h3>My Moves</h3>
+          </div>
+
+          <div class="stepwise-controls">
+            <button class="stepwise-btn" id="getStepsBtn">Show My Moves</button>
+            <span class="step-count" id="stepCount">0 moves</span>
+          </div>
+
+          <div class="stepwise-container">
+            <button class="step-nav-btn step-nav-up" id="stepNavUp" disabled>
+              <span>▲</span>
+            </button>
+            <div class="stepwise-list" id="stepwiseList">
+              <div class="stepwise-placeholder">Start playing to see your moves</div>
+            </div>
+            <button class="step-nav-btn step-nav-down" id="stepNavDown" disabled>
+              <span>▼</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Rules and Regulations Card -->
+        <div class="rules-card">
+          <div class="rules-header">
+            <svg class="rules-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path
+                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+            </svg>
+            <h3>Rules & Pro Times</h3>
+          </div>
+
+          <div class="rules-content">
+            <div class="rules-section">
+              <h4>🏆 Pro Time Targets</h4>
+              <div class="time-targets">
+                <div class="time-target">
+                  <span class="difficulty-badge easy-badge">Easy</span>
+                  <span class="target-time">
+                    < 8 min</span>
+                </div>
+                <div class="time-target">
+                  <span class="difficulty-badge medium-badge">Medium</span>
+                  <span class="target-time">
+                    < 12 min</span>
+                </div>
+                <div class="time-target">
+                  <span class="difficulty-badge hard-badge">Hard</span>
+                  <span class="target-time">
+                    < 20 min</span>
+                </div>
+                <div class="time-target">
+                  <span class="difficulty-badge expert-badge">Expert</span>
+                  <span class="target-time">
+                    < 35 min</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="rules-section">
+              <h4>📋 Game Rules</h4>
+              <ul class="rules-list">
+                <li>Fill all 81 cells with numbers 1-9</li>
+                <li>Each row must contain 1-9 once</li>
+                <li>Each column must contain 1-9 once</li>
+                <li>Each 3×3 box must contain 1-9 once</li>
+              </ul>
+            </div>
+
+            <div class="rules-section">
+              <h4>⭐ Performance Tips</h4>
+              <ul class="rules-list">
+                <li>Plan before placing numbers</li>
+                <li>Use logic, not guessing</li>
+                <li>Minimize mistakes for better score</li>
+                <li>Practice regularly to improve</li>
+              </ul>
             </div>
           </div>
         </div>
@@ -185,6 +271,58 @@
     <!-- <source src="./music/background.mp3" type="audio/mpeg"> -->
     <!-- <source src="./music/background.ogg" type="audio/ogg"> -->
   </audio>
+
+  <!-- Difficulty Selection Modal -->
+  <div class="difficulty-modal" id="difficultyModal">
+    <div class="difficulty-modal-overlay"></div>
+    <div class="difficulty-modal-content">
+      <h2>Select Difficulty</h2>
+      <p>Choose your challenge level</p>
+
+      <div class="difficulty-options">
+        <label class="difficulty-option">
+          <input type="radio" name="difficulty" value="easy">
+          <div class="option-card">
+            <div class="option-icon">🌱</div>
+            <div class="option-name">Easy</div>
+            <div class="option-desc">Perfect for beginners</div>
+          </div>
+        </label>
+
+        <label class="difficulty-option">
+          <input type="radio" name="difficulty" value="medium" checked>
+          <div class="option-card">
+            <div class="option-icon">⚡</div>
+            <div class="option-name">Medium</div>
+            <div class="option-desc">Balanced challenge</div>
+          </div>
+        </label>
+
+        <label class="difficulty-option">
+          <input type="radio" name="difficulty" value="hard">
+          <div class="option-card">
+            <div class="option-icon">🔥</div>
+            <div class="option-name">Hard</div>
+            <div class="option-desc">For experienced players</div>
+          </div>
+        </label>
+
+        <label class="difficulty-option">
+          <input type="radio" name="difficulty" value="expert">
+          <div class="option-card">
+            <div class="option-icon">💎</div>
+            <div class="option-name">Expert</div>
+            <div class="option-desc">Ultimate challenge</div>
+          </div>
+        </label>
+      </div>
+
+      <div class="modal-actions">
+        <button class="modal-btn cancel-btn" id="cancelDifficultyBtn">Cancel</button>
+        <button class="modal-btn submit-btn" id="submitDifficultyBtn">Start Game</button>
+      </div>
+    </div>
+  </div>
 
   <script src="./play.js"></script>
 </body>
