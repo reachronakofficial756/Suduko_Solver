@@ -58,3 +58,4 @@ Should return: `{"status":"ok"}`
 3. Run: `cd android && ./gradlew assembleDebug`
 4. Install the new APK
 
+
