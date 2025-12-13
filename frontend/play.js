@@ -25,6 +25,182 @@ let isPaused = false;
 let pencilMode = false;
 let pencilMarks = {}; // Store pencil marks for each cell
 
+// ===== PLAYER PERFORMANCE TRACKING =====
+const GRACE_PERIOD_MS = 3000; // 3 seconds grace period for quick corrections
+
+let playerStats = {
+  totalMoves: 0,
+  totalMoveTime: 0,
+  lastMoveTime: Date.now(),
+  undoCount: 0,
+  correctionsPerCell: {}, // Track how many times each cell was changed (after grace period)
+  hintsUsed: 0,
+  strainScore: 0
+};
+
+// Track when each cell was last modified (for grace period)
+let cellPlacementTimestamps = {};
+
+function resetPlayerStats() {
+  playerStats = {
+    totalMoves: 0,
+    totalMoveTime: 0,
+    lastMoveTime: Date.now(),
+    undoCount: 0,
+    correctionsPerCell: {},
+    hintsUsed: 0,
+    strainScore: 0
+  };
+  cellPlacementTimestamps = {};
+  updateStatsDisplay();
+}
+
+function trackMove(row, col) {
+  const now = Date.now();
+  const moveTime = now - playerStats.lastMoveTime;
+  const key = `${row},${col}`;
+
+  playerStats.totalMoves++;
+  playerStats.totalMoveTime += moveTime;
+  playerStats.lastMoveTime = now;
+
+  // Check if this cell was modified before
+  const lastPlacementTime = cellPlacementTimestamps[key];
+
+  if (lastPlacementTime) {
+    const timeSinceLastPlacement = now - lastPlacementTime;
+
+    // Only count as correction if outside grace period
+    if (timeSinceLastPlacement > GRACE_PERIOD_MS) {
+      playerStats.correctionsPerCell[key] = (playerStats.correctionsPerCell[key] || 0) + 1;
+    }
+    // If within grace period, it's just a quick fix - don't punish!
+  }
+
+  // Update the timestamp for this cell
+  cellPlacementTimestamps[key] = now;
+
+  calculateStrainScore();
+  updateStatsDisplay();
+}
+
+function trackUndo() {
+  playerStats.undoCount++;
+  calculateStrainScore();
+  updateStatsDisplay();
+}
+
+function trackHint() {
+  playerStats.hintsUsed++;
+  calculateStrainScore();
+  updateStatsDisplay();
+}
+
+function calculateStrainScore() {
+  if (playerStats.totalMoves === 0) {
+    playerStats.strainScore = 0;
+    return;
+  }
+
+  // Calculate average time per move (in seconds)
+  const avgTimePerMove = (playerStats.totalMoveTime / playerStats.totalMoves) / 1000;
+
+  // Calculate undo rate (percentage)
+  const undoRate = (playerStats.undoCount / playerStats.totalMoves) * 100;
+
+  // Calculate average corrections per cell
+  const totalCorrections = Object.values(playerStats.correctionsPerCell).reduce((a, b) => a + b, 0);
+  const avgCorrections = totalCorrections / Math.max(Object.keys(playerStats.correctionsPerCell).length, 1);
+
+  // Calculate hint dependency (percentage)
+  const hintDependency = (playerStats.hintsUsed / Math.max(playerStats.totalMoves, 1)) * 100;
+
+  // Strain score formula (0-100)
+  // Higher values = more strain/difficulty
+  let strain = 0;
+
+  // Time factor (0-30 points): slower = more strain
+  // 0-5s = 0 points, 5-15s = linear, 15s+ = 30 points
+  const timeFactor = Math.min(30, Math.max(0, (avgTimePerMove - 5) * 3));
+  strain += timeFactor;
+
+  // Undo factor (0-25 points): more undos = more strain
+  // 0-10% = 0 points, 10-50% = linear, 50%+ = 25 points
+  const undoFactor = Math.min(25, Math.max(0, (undoRate - 10) * 0.625));
+  strain += undoFactor;
+
+  // Correction factor (0-25 points): more corrections = more strain
+  // 1 correction = 0 points, 2-5 = linear, 5+ = 25 points
+  const correctionFactor = Math.min(25, Math.max(0, (avgCorrections - 1) * 6.25));
+  strain += correctionFactor;
+
+  // Hint factor (0-20 points): more hints = more strain
+  // 0-5% = 0 points, 5-25% = linear, 25%+ = 20 points
+  const hintFactor = Math.min(20, Math.max(0, (hintDependency - 5) * 1));
+  strain += hintFactor;
+
+  playerStats.strainScore = Math.round(Math.min(100, Math.max(0, strain)));
+}
+
+function getStrainDescription(score) {
+  if (score === 0) return 'Just started';
+  if (score < 15) return 'Cruising smoothly';
+  if (score < 30) return 'Comfortable pace';
+  if (score < 45) return 'Moderate challenge';
+  if (score < 60) return 'Getting tricky';
+  if (score < 75) return 'High difficulty';
+  if (score < 90) return 'Very challenging';
+  return 'Maximum strain';
+}
+
+function updateStatsDisplay() {
+  // Update strain score
+  const strainScoreEl = $('strainScore');
+  const strainFillEl = $('strainFill');
+  const strainDescEl = $('strainDescription');
+
+  if (strainScoreEl) {
+    strainScoreEl.textContent = playerStats.strainScore;
+  }
+
+  if (strainFillEl) {
+    strainFillEl.style.width = `${playerStats.strainScore}%`;
+  }
+
+  if (strainDescEl) {
+    strainDescEl.textContent = getStrainDescription(playerStats.strainScore);
+  }
+
+  // Update average time per move
+  const avgTimeEl = $('avgTimePerMove');
+  if (avgTimeEl && playerStats.totalMoves > 0) {
+    const avgTime = (playerStats.totalMoveTime / playerStats.totalMoves) / 1000;
+    avgTimeEl.textContent = `${avgTime.toFixed(1)}s`;
+  }
+
+  // Update undo rate
+  const undoRateEl = $('undoRate');
+  if (undoRateEl && playerStats.totalMoves > 0) {
+    const rate = (playerStats.undoCount / playerStats.totalMoves) * 100;
+    undoRateEl.textContent = `${rate.toFixed(0)}%`;
+  }
+
+  // Update corrections
+  const correctionsEl = $('corrections');
+  if (correctionsEl) {
+    const total = Object.values(playerStats.correctionsPerCell).reduce((a, b) => a + b, 0);
+    correctionsEl.textContent = total;
+  }
+
+  // Update hint dependency
+  const hintDepEl = $('hintDependency');
+  if (hintDepEl && playerStats.totalMoves > 0) {
+    const dep = (playerStats.hintsUsed / playerStats.totalMoves) * 100;
+    hintDepEl.textContent = `${dep.toFixed(0)}%`;
+  }
+}
+
+
 function $(id) { return document.getElementById(id); }
 
 function formatTime(ms) {
@@ -196,6 +372,9 @@ function applyNumber(n) {
   const cell = document.querySelectorAll('.cell')[idx];
   cell.textContent = n ? String(n) : '';
 
+  // Track the move for performance stats
+  trackMove(r, c);
+
   updateDigitCounts();
   applySmartHighlighting(r, c);
 }
@@ -207,6 +386,10 @@ function undo() {
   const idx = last.r * 9 + last.c;
   const cell = document.querySelectorAll('.cell')[idx];
   cell.textContent = last.prev ? String(last.prev) : '';
+
+  // Track undo for performance stats
+  trackUndo();
+
   updateDigitCounts();
 }
 
@@ -217,6 +400,10 @@ async function hint() {
     if (data.has_hint) {
       const { row, col, value } = data;
       selected = [row, col];
+
+      // Track hint usage for performance stats
+      trackHint();
+
       applyNumber(value);
     }
   } catch (e) { console.error(e); }
@@ -343,6 +530,10 @@ async function newGame() {
     undoStack = [];
     isPaused = false;
     $('pauseBtn').textContent = '⏸';
+
+    // Reset player stats for new game
+    resetPlayerStats();
+
     buildGrid();
     resetTimer();
   } catch (e) {
