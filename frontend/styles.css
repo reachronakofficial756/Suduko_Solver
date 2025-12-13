@@ -648,58 +648,143 @@ body::before {
   font-weight: 600;
 }
 
-/* Hide smart input panel on desktop/laptop, show only on mobile */
-@media (min-width: 769px) {
+/* Hide smart input panel on desktop/laptop (> 1024px), show only on mobile/tablet */
+@media (min-width: 1025px) {
   .smart-input-panel {
     display: none !important;
   }
+
+  /* Minimize gap for desktop as requested */
+  .game-content-wrapper {
+    gap: 8px !important;
+  }
 }
 
-/* Desktop Enhancements */
-@media (min-width: 769px) {
+@media (min-width: 1025px) {
   .page {
-    padding: 30px;
+    padding: 10px;
+    /* Reduced padding */
+    height: 100vh;
+    overflow: hidden;
+    align-items: flex-start;
+    /* Align top */
   }
 
   .center {
-    max-width: 480px;
-    /* Glassmorphic Container Box */
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 24px;
-    padding: 48px 40px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    padding: 24px;
+    max-width: 420px;
   }
 
-  .app-title {
-    font-size: clamp(2rem, 4vw, 2.75rem);
+  .logo {
+    margin-bottom: 8px;
+    padding: 4px;
   }
 
   .logo-img {
-    max-width: 220px;
+    max-width: 140px;
+    /* Smaller logo */
   }
 
-  .btn {
-    padding: 14px 28px;
-    font-size: 16px;
+  .app-title {
+    font-size: 1.8rem;
+    margin-bottom: 8px;
   }
 
   .settings-btn {
-    top: 24px;
-    right: 24px;
-    width: 48px;
-    height: 48px;
+    top: 10px;
+    right: 10px;
+    width: 36px;
+    height: 36px;
   }
 
-  .settings-btn .icon {
-    width: 22px;
-    height: 22px;
+  /* Game Page Compact overrides */
+  .game-container {
+    padding: 10px;
+    justify-content: flex-start;
+    /* Start from top */
+    gap: 10px;
+  }
+
+  .game-header-column,
+  .action-buttons {
+    max-width: 400px;
+    margin-bottom: 4px;
+  }
+
+  .header-logo {
+    width: 60px;
+    height: 60px;
+  }
+
+  .action-btn {
+    min-height: 50px;
+    padding: 5px;
+    font-size: 11px;
+  }
+
+  .game-card {
+    padding: 10px;
+    max-width: 400px;
+  }
+
+  .timer-display {
+    padding: 4px 12px;
+  }
+
+  /* Compact Stats for Desktop */
+  .stats-card {
+    max-width: 260px;
+    padding: 12px;
+    max-height: calc(100vh - 20px);
+    overflow-y: auto;
+  }
+
+  .strain-score-container {
+    padding: 8px;
+    margin-bottom: 8px;
+  }
+
+  .strain-value {
+    font-size: 28px;
+    margin-bottom: 4px;
+  }
+
+  .strain-label {
+    margin-bottom: 4px;
+    font-size: 10px;
+  }
+
+  .strain-bar {
+    height: 6px;
+    margin-bottom: 6px;
+  }
+
+  .metric {
+    padding: 6px;
+    gap: 8px;
+  }
+
+  .metric-icon {
+    width: 28px;
+    height: 28px;
+    font-size: 16px;
+  }
+
+  .metric-value {
+    font-size: 14px;
+  }
+
+  .stats-header {
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+  }
+
+  .stats-header h3 {
+    font-size: 14px;
   }
 }
 
-/* Mobile & Tablet Responsive (Same layout for both) */
+/* Mobile (< 768px) Specifics */
 @media (max-width: 768px) {
   .page {
     padding: 16px;
@@ -717,58 +802,153 @@ body::before {
     width: 18px;
     height: 18px;
   }
+}
 
-  .center {
-    max-width: 100%;
+/* Tablet (769px - 1024px) Specifics */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .page {
+    padding: 20px;
+    height: 100vh;
+    /* Fit to screen if possible */
+    overflow: hidden;
   }
+}
 
-  .app-title {
-    font-size: clamp(1.5rem, 5vw, 2rem);
-    margin-bottom: 10px;
-  }
+/* Mobile & Tablet General (Stacked vs Horizontal separation) */
 
-  .logo {
-    margin-bottom: 20px;
-    padding: 15px;
-  }
 
-  .logo::before {
-    width: 220px;
-    height: 220px;
-  }
+.center {
+  max-width: 100%;
+}
 
-  .logo-img {
-    max-width: 160px;
-  }
+.app-title {
+  font-size: clamp(1.5rem, 5vw, 2rem);
+  margin-bottom: 10px;
+}
 
-  .cta {
-    gap: 10px;
-    margin-top: 20px;
-  }
+.logo {
+  margin-bottom: 20px;
+  padding: 15px;
+}
 
-  .btn {
-    padding: 10px 20px;
-    font-size: 14px;
-    border-radius: 10px;
+.logo::before {
+  width: 220px;
+  height: 220px;
+}
+
+.logo-img {
+  max-width: 160px;
+}
+
+.cta {
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.btn {
+  padding: 10px 20px;
+  font-size: 14px;
+  border-radius: 10px;
+}
+
+.game-container {
+  padding: 16px;
+  padding-top: 16px;
+  overflow: visible;
+  /* Allow scrolling on mobile/tablet */
+  height: auto;
+  /* Remove fixed height */
+}
+
+.header-logo {
+  width: 80px;
+  height: 80px;
+}
+
+
+/* 
+   Logic Split:
+   Mobile (< 768px) -> Stacked
+   Tablet (769px-1024px) -> Side-by-side (Horizontal)
+   Desktop (> 1024px) -> Side-by-side (Horizontal)
+*/
+
+/* STACKED Layout (Mobile Only) */
+@media (max-width: 768px) {
+  .game-content-wrapper {
+    flex-direction: column;
+    align-items: center;
+    overflow: visible;
+    height: auto;
   }
 
   .game-container {
-    padding: 16px;
-    padding-top: 16px;
-    overflow: visible;
-    /* Allow scrolling on mobile/tablet */
     height: auto;
-    /* Remove fixed height */
+    overflow-y: auto;
+    padding: 16px;
   }
 
-  .game-header-column {
-    max-width: 100%;
+  /* Stats stacked below */
+  .stats-card {
+    display: block;
+    position: relative;
+    width: 100%;
+    max-width: 450px;
+    margin-top: 20px;
+    z-index: 1;
+    border-radius: 16px;
+    padding: 16px;
+    overflow-y: visible;
+    max-height: none;
+    box-shadow: none;
+    background: rgba(255, 255, 255, 0.05);
+  }
+}
+
+/* TABLET Layout (Horizontal + Vertically Centered) */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .game-content-wrapper {
+    flex-direction: row;
+    /* Horizontal */
+    align-items: center;
+    /* Vertically centered */
+    justify-content: center;
+    gap: 20px;
+    /* Decent gap for tablet */
   }
 
-  .header-logo {
-    width: 80px;
-    height: 80px;
+  .game-container {
+    height: 100vh;
+    overflow: hidden;
+    justify-content: center;
+    /* Center game vertically */
   }
+
+  /* Stats side-by-side */
+  .stats-card {
+    display: block;
+    position: relative;
+    width: 300px;
+    /* Fixed width sidebar */
+    max-height: 80vh;
+    /* Scrollable if needed */
+    overflow-y: auto;
+    background: var(--glass-bg);
+  }
+
+  /* Hide performance toggle since we show stats */
+  .performance-toggle-btn {
+    display: none !important;
+  }
+
+  .stats-close-btn {
+    display: none !important;
+  }
+}
+
+/* General overrides for < 1024px (Both Mobile & Tablet share some styles) */
+@media (max-width: 1024px) {
+
 
   .timer-display {
     padding: 10px 16px;
@@ -849,43 +1029,34 @@ body::before {
     font-size: 10px;
   }
 
-  /* Show performance button on mobile */
+  /* Show performance button on mobile/tablet if needed, but we want stats always visible now */
   .performance-toggle-btn {
-    display: flex !important;
+    display: none !important;
   }
 
-  /* Hide stats card by default on mobile */
+  /* Stats card visible and stacked */
   .stats-card {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    max-width: 100%;
-    max-height: 100%;
-    z-index: 2000;
-    border-radius: 0;
-    padding: 20px;
-    overflow-y: auto;
-  }
-
-  /* Show stats card when active */
-  .stats-card.active {
     display: block;
+    position: relative;
+    width: 100%;
+    max-width: 450px;
+    margin-top: 20px;
+    z-index: 1;
+    border-radius: 16px;
+    padding: 16px;
+    overflow-y: visible;
+    max-height: none;
+    box-shadow: none;
+    background: rgba(255, 255, 255, 0.05);
+    /* Slightly different bg to distinguish */
   }
 
-  /* Backdrop for stats overlay */
+  /* Cleanup unused mobile overlays */
+  .stats-card.active,
   .stats-card::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.7);
-    z-index: -1;
+    display: none;
   }
+
 
   /* Show close button on mobile */
   .stats-close-btn {
@@ -982,6 +1153,7 @@ body::before {
 /* ===== PLAYER STATS CARD ===== */
 
 /* Main Content Wrapper - Side by side on desktop, stacked on mobile */
+/* Main Content Wrapper */
 .game-content-wrapper {
   display: flex;
   gap: 16px;
@@ -989,10 +1161,43 @@ body::before {
   max-width: 1200px;
   margin: 0 auto;
   align-items: flex-start;
-  justify-content: space-between;
+  justify-content: center;
+  /* Center content */
   flex: 1;
   overflow: hidden;
 }
+
+/* Mobile Wrapper Override (Stacked layout) */
+@media (max-width: 768px) {
+  .game-content-wrapper {
+    flex-direction: column;
+    align-items: center;
+    overflow: visible;
+    height: auto;
+  }
+
+  .game-container {
+    height: auto;
+    overflow-y: auto;
+  }
+}
+
+/* Tablet Wrapper Override (Horizontal layout) */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .game-content-wrapper {
+    gap: 12px;
+    /* Slightly reduced gap for tablets */
+  }
+}
+
+/* Desktop Wrapper Override (Reduced gap) */
+@media (min-width: 1025px) {
+  .game-content-wrapper {
+    gap: 20px;
+    /* Reduced gap for larger desktops */
+  }
+}
+
 
 .game-area {
   flex: 1;
@@ -1171,7 +1376,7 @@ body::before {
   font-variant-numeric: tabular-nums;
 }
 
-/* Responsive Layout - Tablet & Mobile use overlay */
+/* Responsive Layout - Mobile use stacked, Tablet use horizontal */
 @media (max-width: 768px) {
   .stats-card {
     max-width: 100%;
@@ -1198,6 +1403,11 @@ body::before {
 
   .metric-value {
     font-size: 16px;
+  }
+
+  /* Hide close button since it's not a modal anymore */
+  .stats-close-btn {
+    display: none !important;
   }
 }
 
