@@ -5,10 +5,9 @@
   --deep-blue: #4A8FEF;
   --light-blue: #E8F1FF;
 
-  /* Purple Gradient Background */
-  --bg-gradient-start: #667EEA;
-  --bg-gradient-end: #764BA2;
-  --bg-gradient-mid: #8B5CF6;
+  /* Grey Theme Background */
+  --bg-gradient-start: #8e9eab;
+  --bg-gradient-end: #2C3E50;
 
   --white: #FFFFFF;
   --text-dark: #2C3E50;
@@ -17,9 +16,9 @@
   --shadow: rgba(0, 0, 0, 0.2);
   --shadow-lg: rgba(0, 0, 0, 0.25);
 
-  /* Glass morphism for Header & Buttons */
-  --glass-bg: rgba(255, 255, 255, 0.15);
-  --glass-border: rgba(255, 255, 255, 0.25);
+  /* Solid Grey for Header & Buttons */
+  --glass-bg: #455A64;
+  --glass-border: #546E7A;
 
   --highlight-row-col: rgba(79, 138, 255, 0.08);
   --highlight-box: rgba(79, 138, 255, 0.12);
@@ -34,13 +33,13 @@
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  height: 100vh;
+  min-height: 100vh;
   color: var(--text-dark);
-  overflow: hidden;
+  overflow-x: hidden;
   position: relative;
 }
 
-/* Enhanced Purple Gradient Background */
+/* Blurred Background Pseudo-element */
 body::before {
   content: "";
   position: fixed;
@@ -48,23 +47,9 @@ body::before {
   left: -20px;
   right: -20px;
   bottom: -20px;
-  background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-mid) 50%, var(--bg-gradient-end) 100%);
+  background: linear-gradient(180deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
   filter: blur(20px);
-  z-index: -2;
-}
-
-body::after {
-  content: "";
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: 
-    radial-gradient(circle at 20% 50%, rgba(139, 92, 246, 0.4) 0%, transparent 50%),
-    radial-gradient(circle at 80% 80%, rgba(102, 126, 234, 0.4) 0%, transparent 50%);
   z-index: -1;
-  pointer-events: none;
 }
 
 /* Home Page Styles */
