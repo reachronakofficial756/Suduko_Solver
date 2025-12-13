@@ -461,6 +461,37 @@ function main() {
 
   wireInputPanel();
   newGame();
+  
+  // Initialize background music - start on any page interaction
+  const backgroundMusic = document.getElementById('backgroundMusic');
+  if (backgroundMusic) {
+    const soundEnabled = localStorage.getItem('soundEnabled') !== 'false';
+    backgroundMusic.volume = 0.3; // Set volume to 30%
+    
+    // Start music on first user interaction (anywhere on page, not just settings button)
+    let musicStarted = false;
+    const startMusicOnInteraction = () => {
+      if (!musicStarted && soundEnabled) {
+        backgroundMusic.play().then(() => {
+          musicStarted = true;
+        }).catch(err => {
+          console.log('Music start error:', err);
+        });
+      }
+    };
+    
+    // Try to start on multiple events (using once: true ensures it only fires once)
+    document.addEventListener('click', startMusicOnInteraction, { once: true });
+    document.addEventListener('touchstart', startMusicOnInteraction, { once: true });
+    document.addEventListener('keydown', startMusicOnInteraction, { once: true });
+    
+    // Also try on window load (might work in some browsers)
+    if (document.readyState === 'complete') {
+      startMusicOnInteraction();
+    } else {
+      window.addEventListener('load', startMusicOnInteraction, { once: true });
+    }
+  }
 }
 
 document.addEventListener('DOMContentLoaded', main);

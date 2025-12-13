@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sudoku - Home</title>
   <link rel="stylesheet" href="./styles.css" />
+  <link rel="stylesheet" href="./kri-style.css" />
 </head>
 
 <body>
@@ -22,11 +23,117 @@
         <img src="./Suduko_logo.svg" alt="Sudoku Logo" class="logo-img" />
       </div>
       <div class="cta">
-        <a class="btn primary" href="./play.html">Play Game</a>
-        <button id="modeBtn" class="btn secondary">Difficulty: <span id="modeLabel">Medium</span></button>
+        <div class="play-row">
+          <a class="btn primary" href="./play.html">Play Game</a>
+          <div class="difficulty-container">
+            <label for="difficultySelect" class="difficulty-label">Difficulty:</label>
+            <select id="difficultySelect" class="difficulty-dropdown">
+              <option value="easy">Easy</option>
+              <option value="medium" selected>Medium</option>
+              <option value="hard">Hard</option>
+            </select>
+          </div>
+        </div>
+        <button id="howToPlayBtn" class="btn how-to-play-btn">How to Play Sudoku</button>
       </div>
     </main>
   </div>
+
+  <!-- Settings Modal -->
+  <div id="settingsModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Settings</h2>
+        <button class="modal-close" id="closeModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <!-- Sound Toggle -->
+        <div class="settings-item">
+          <label class="settings-label">Sound</label>
+          <button id="soundToggle" class="toggle-btn">
+            <span class="toggle-slider"></span>
+          </button>
+        </div>
+
+        <!-- About Us Button -->
+        <button id="aboutUsBtn" class="settings-action-btn">About Us</button>
+
+        <!-- About Us Content (Hidden by default) -->
+        <div id="aboutUsContent" class="about-us-content hidden">
+          <h3>Our Team</h3>
+          <div class="team-grid">
+            <div class="team-member">
+              <div class="team-photo">👤</div>
+              <div class="team-name">Team Member 1</div>
+              <div class="team-designation">Developer</div>
+            </div>
+            <div class="team-member">
+              <div class="team-photo">👤</div>
+              <div class="team-name">Team Member 2</div>
+              <div class="team-designation">Designer</div>
+            </div>
+            <div class="team-member">
+              <div class="team-photo">👤</div>
+              <div class="team-name">Team Member 3</div>
+              <div class="team-designation">Product Manager</div>
+            </div>
+            <div class="team-member">
+              <div class="team-photo">👤</div>
+              <div class="team-name">Team Member 4</div>
+              <div class="team-designation">QA Engineer</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Terms and Conditions Button (Disabled) -->
+        <button id="termsBtn" class="settings-action-btn disabled" disabled>Terms and Conditions</button>
+      </div>
+      <div class="modal-footer">
+        <span class="version-text">v1.0</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- How to Play Modal -->
+  <div id="howToPlayModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>How to Play Sudoku</h2>
+        <button class="modal-close" id="closeHowToPlayModal">&times;</button>
+      </div>
+      <div class="modal-body how-to-play-body">
+        <div class="how-to-play-content">
+          <h3>Objective</h3>
+          <p>Fill the 9×9 grid with digits so that each column, each row, and each of the nine 3×3 subgrids (also called "boxes" or "regions") contains all of the digits from 1 to 9.</p>
+          
+          <h3>Rules</h3>
+          <ol>
+            <li><strong>Each row</strong> must contain the numbers 1-9 exactly once.</li>
+            <li><strong>Each column</strong> must contain the numbers 1-9 exactly once.</li>
+            <li><strong>Each 3×3 box</strong> must contain the numbers 1-9 exactly once.</li>
+            <li>You cannot change the numbers that are already filled in (these are shown in a different color).</li>
+          </ol>
+          
+          <h3>Tips</h3>
+          <ul>
+            <li>Start by looking for rows, columns, or boxes that have many numbers already filled in.</li>
+            <li>Look for numbers that can only go in one place in a row, column, or box.</li>
+            <li>Use the "Hint" button if you get stuck - it will show you the next correct number.</li>
+            <li>Take your time and think logically - there's only one correct solution!</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Background Music -->
+  <!-- Replace the src with your own music file path (e.g., "./music/background.mp3") -->
+  <audio id="backgroundMusic" loop preload="auto">
+    <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+    <!-- Fallback: Add your own music file here -->
+    <!-- <source src="./music/background.mp3" type="audio/mpeg"> -->
+    <!-- <source src="./music/background.ogg" type="audio/ogg"> -->
+  </audio>
 
   <script src="./home.js"></script>
 </body>
