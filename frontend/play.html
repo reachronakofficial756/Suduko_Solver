@@ -27,85 +27,144 @@
       </div>
     </div>
 
-    <!-- Action Buttons with Line-Art Icons -->
-    <div class="action-buttons">
-      <button class="action-btn" id="undoBtn">
-        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M3 7v6h6M21 17v-6h-6M3 13a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3M21 11a9 9 0 0 1-9 9 9 9 0 0 1-6-2.3" />
-        </svg>
-        <span>Undo</span>
-      </button>
-      <button class="action-btn" id="autoSolveBtn">
-        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M9 12l2 2 4-4m6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" />
-        </svg>
-        <span>Auto Solve</span>
-      </button>
-      <button class="action-btn" id="hintBtn">
-        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />
-          <path
-            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-        </svg>
-        <span>Hint</span>
-      </button>
-      <button class="action-btn" id="newGameBtn">
-        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2" />
-        </svg>
-        <span>New Game</span>
-      </button>
-    </div>
+    <!-- Main Content Wrapper (Game + Stats) -->
+    <div class="game-content-wrapper">
+      <!-- Left Side: Game Area -->
+      <div class="game-area">
+        <!-- Action Buttons with Line-Art Icons -->
+        <div class="action-buttons">
+          <button class="action-btn" id="undoBtn">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 7v6h6M21 17v-6h-6M3 13a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3M21 11a9 9 0 0 1-9 9 9 9 0 0 1-6-2.3" />
+            </svg>
+            <span>Undo</span>
+          </button>
+          <button class="action-btn" id="autoSolveBtn">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 12l2 2 4-4m6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" />
+            </svg>
+            <span>Auto Solve</span>
+          </button>
+          <button class="action-btn" id="hintBtn">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />
+              <path
+                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+            <span>Hint</span>
+          </button>
+          <button class="action-btn" id="newGameBtn">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2" />
+            </svg>
+            <span>New Game</span>
+          </button>
+        </div>
 
-    <!-- Game Card with Grid -->
-    <div class="game-card">
-      <div id="grid" class="grid"></div>
-    </div>
+        <!-- Game Card with Grid -->
+        <div class="game-card">
+          <div id="grid" class="grid"></div>
+        </div>
 
-    <!-- Smart Input Panel with Digit Counts -->
-    <div class="smart-input-panel" id="smartInputPanel">
-      <button class="number-btn" data-n="1">
-        <span class="number">1</span>
-        <span class="count" id="count-1">0/9</span>
-      </button>
-      <button class="number-btn" data-n="2">
-        <span class="number">2</span>
-        <span class="count" id="count-2">0/9</span>
-      </button>
-      <button class="number-btn" data-n="3">
-        <span class="number">3</span>
-        <span class="count" id="count-3">0/9</span>
-      </button>
-      <button class="number-btn" data-n="4">
-        <span class="number">4</span>
-        <span class="count" id="count-4">0/9</span>
-      </button>
-      <button class="number-btn" data-n="5">
-        <span class="number">5</span>
-        <span class="count" id="count-5">0/9</span>
-      </button>
-      <button class="number-btn" data-n="6">
-        <span class="number">6</span>
-        <span class="count" id="count-6">0/9</span>
-      </button>
-      <button class="number-btn" data-n="7">
-        <span class="number">7</span>
-        <span class="count" id="count-7">0/9</span>
-      </button>
-      <button class="number-btn" data-n="8">
-        <span class="number">8</span>
-        <span class="count" id="count-8">0/9</span>
-      </button>
-      <button class="number-btn" data-n="9">
-        <span class="number">9</span>
-        <span class="count" id="count-9">0/9</span>
-      </button>
-      <button class="number-btn erase-btn" data-n="0">
-        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-        </svg>
-        <span>Erase</span>
-      </button>
+        <!-- Smart Input Panel with Digit Counts -->
+        <div class="smart-input-panel" id="smartInputPanel">
+          <button class="number-btn" data-n="1">
+            <span class="number">1</span>
+            <span class="count" id="count-1">0/9</span>
+          </button>
+          <button class="number-btn" data-n="2">
+            <span class="number">2</span>
+            <span class="count" id="count-2">0/9</span>
+          </button>
+          <button class="number-btn" data-n="3">
+            <span class="number">3</span>
+            <span class="count" id="count-3">0/9</span>
+          </button>
+          <button class="number-btn" data-n="4">
+            <span class="number">4</span>
+            <span class="count" id="count-4">0/9</span>
+          </button>
+          <button class="number-btn" data-n="5">
+            <span class="number">5</span>
+            <span class="count" id="count-5">0/9</span>
+          </button>
+          <button class="number-btn" data-n="6">
+            <span class="number">6</span>
+            <span class="count" id="count-6">0/9</span>
+          </button>
+          <button class="number-btn" data-n="7">
+            <span class="number">7</span>
+            <span class="count" id="count-7">0/9</span>
+          </button>
+          <button class="number-btn" data-n="8">
+            <span class="number">8</span>
+            <span class="count" id="count-8">0/9</span>
+          </button>
+          <button class="number-btn" data-n="9">
+            <span class="number">9</span>
+            <span class="count" id="count-9">0/9</span>
+          </button>
+          <button class="number-btn erase-btn" data-n="0">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+            </svg>
+            <span>Erase</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Right Side: Player Stats Card -->
+      <div class="stats-card">
+        <div class="stats-header">
+          <svg class="stats-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M8.5 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM20 8v6M23 11h-6" />
+          </svg>
+          <h3>Your Performance</h3>
+        </div>
+
+        <div class="strain-score-container">
+          <div class="strain-label">Strain Score</div>
+          <div class="strain-value" id="strainScore">0</div>
+          <div class="strain-bar">
+            <div class="strain-fill" id="strainFill"></div>
+          </div>
+          <div class="strain-description" id="strainDescription">Just started</div>
+        </div>
+
+        <div class="stats-metrics">
+          <div class="metric">
+            <div class="metric-icon">⏱️</div>
+            <div class="metric-content">
+              <div class="metric-label">Avg Time/Move</div>
+              <div class="metric-value" id="avgTimePerMove">0s</div>
+            </div>
+          </div>
+
+          <div class="metric">
+            <div class="metric-icon">↩️</div>
+            <div class="metric-content">
+              <div class="metric-label">Undo Rate</div>
+              <div class="metric-value" id="undoRate">0%</div>
+            </div>
+          </div>
+
+          <div class="metric" title="Quick corrections within 3 seconds aren't counted">
+            <div class="metric-icon">✏️</div>
+            <div class="metric-content">
+              <div class="metric-label">Corrections</div>
+              <div class="metric-value" id="corrections">0</div>
+            </div>
+          </div>
+
+          <div class="metric">
+            <div class="metric-icon">💡</div>
+            <div class="metric-content">
+              <div class="metric-label">Hint Dependency</div>
+              <div class="metric-value" id="hintDependency">0%</div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 

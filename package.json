@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "serve": "npx http-server frontend -p 3000 -c-1 --cors",
     "build:web": "echo \"Static assets live in ./frontend\"",
     "cap:sync": "npx cap sync",
     "cap:add:android": "npx cap add android",
