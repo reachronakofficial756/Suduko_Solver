@@ -160,6 +160,9 @@ def health():
 
 @app.post("/api/generate", response_model=GenerateResponse)
 def generate(body: GenerateRequest):
+    import time
+    start_time = time.time()
+    
     difficulty = (body.difficulty or "medium").lower()
     if difficulty not in {"easy", "medium", "hard", "expert"}:
         raise HTTPException(status_code=400, detail="difficulty must be one of: easy, medium, hard, expert")
@@ -171,6 +174,9 @@ def generate(body: GenerateRequest):
     else:
         game = SudokuGame()
         puzzle, solution = game.new_game(difficulty)
+    
+    elapsed = time.time() - start_time
+    print(f"⏱️ Generated {difficulty} puzzle in {elapsed:.2f}s")
     
     return {"puzzle": puzzle, "solution": solution, "difficulty": difficulty}
 
