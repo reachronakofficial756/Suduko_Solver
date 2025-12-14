@@ -1,0 +1,219 @@
+/* Theme Selector */
+.theme-selector {
+    display: flex;
+    gap: 12px;
+    width: 100%;
+}
+
+.theme-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 16px 12px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    color: var(--white);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.theme-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+}
+
+.theme-btn.active {
+    background: var(--accent-blue);
+    border-color: var(--accent-blue);
+    box-shadow: 0 4px 16px rgba(79, 138, 255, 0.4);
+}
+
+.theme-icon {
+    width: 24px;
+    height: 24px;
+    stroke: currentColor;
+}
+
+.theme-btn span {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* Light theme adjustments for modal */
+[data-theme="light"] .modal-content {
+    background: rgba(255, 255, 255, 0.95);
+    color: var(--text-primary);
+}
+
+[data-theme="light"] .modal-header h2,
+[data-theme="light"] .settings-label,
+[data-theme="light"] .team-name,
+[data-theme="light"] .how-to-play-content h3 {
+    color: var(--text-primary);
+}
+
+[data-theme="light"] .modal-close,
+[data-theme="light"] .settings-action-btn,
+[data-theme="light"] .theme-btn {
+    color: var(--text-primary);
+}
+
+[data-theme="light"] .version-text,
+[data-theme="light"] .team-designation,
+[data-theme="light"] .how-to-play-content li {
+    color: var(--text-secondary);
+}
+
+[data-theme="light"] .theme-btn {
+    background: rgba(0, 0, 0, 0.05);
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .theme-btn:hover {
+    background: rgba(0, 0, 0, 0.08);
+    border-color: rgba(0, 0, 0, 0.15);
+}
+
+[data-theme="light"] .theme-btn.active {
+    background: var(--accent-blue);
+    border-color: var(--accent-blue);
+    color: white;
+}
+
+[data-theme="light"] .settings-action-btn {
+    background: rgba(0, 0, 0, 0.05);
+    border-color: rgba(0, 0, 0, 0.1);
+    color: black;
+}
+
+[data-theme="light"] .settings-action-btn:hover:not(.disabled) {
+    background: var(--accent-blue);
+    border-color: var(--accent-blue);
+    color: black;
+}
+
+[data-theme="light"] .team-member {
+    background: rgba(0, 0, 0, 0.03);
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .team-member:hover {
+    background: rgba(37, 99, 235, 0.08);
+    border-color: var(--accent-blue);
+}
+
+/* ===== RESPONSIVE THEME SELECTOR ===== */
+
+/* Mobile (up to 480px) */
+@media (max-width: 480px) {
+    .theme-selector {
+        gap: 8px;
+    }
+
+    .theme-btn {
+        padding: 12px 8px;
+        gap: 6px;
+    }
+
+    .theme-icon {
+        width: 20px;
+        height: 20px;
+    }
+
+    .theme-btn span {
+        font-size: 12px;
+    }
+}
+
+/* Tablet (481px to 768px) */
+@media (min-width: 481px) and (max-width: 768px) {
+    .theme-selector {
+        gap: 10px;
+    }
+
+    .theme-btn {
+        padding: 14px 10px;
+    }
+
+    .theme-icon {
+        width: 22px;
+        height: 22px;
+    }
+
+    .theme-btn span {
+        font-size: 13px;
+    }
+}
+
+/* Desktop (769px and above) */
+@media (min-width: 769px) {
+    .theme-selector {
+        gap: 12px;
+    }
+
+    .theme-btn {
+        padding: 16px 12px;
+    }
+
+    .theme-icon {
+        width: 24px;
+        height: 24px;
+    }
+
+    .theme-btn span {
+        font-size: 14px;
+    }
+}
+
+/* Ensure theme buttons are touchable on mobile */
+@media (hover: none) and (pointer: coarse) {
+    .theme-btn {
+        min-height: 44px;
+        min-width: 44px;
+    }
+}
+
+/* Light theme overrides for buttons */
+[data-theme="light"] .settings-btn {
+    color: var(--text-primary);
+}
+
+[data-theme="light"] .settings-btn .icon {
+    stroke: var(--text-primary);
+}
+
+[data-theme="light"] .how-to-play-btn {
+    color: var(--text-primary);
+    background: rgba(0, 0, 0, 0.05);
+    border-color: rgba(0, 0, 0, 0.15);
+}
+
+[data-theme="light"] .how-to-play-btn:hover {
+    background: rgba(0, 0, 0, 0.1);
+    border-color: rgba(0, 0, 0, 0.2);
+}
+
+/* Light theme overrides for How to Play modal content */
+[data-theme="light"] .how-to-play-content {
+    color: var(--text-primary);
+}
+
+[data-theme="light"] .how-to-play-content h3 {
+    color: var(--text-primary);
+}
+
+[data-theme="light"] .how-to-play-content p {
+    color: var(--text-secondary);
+}
+
+[data-theme="light"] .how-to-play-content li {
+    color: var(--text-secondary);
+}
+
+[data-theme="light"] .how-to-play-content li strong {
+    color: var(--text-primary);
+}
