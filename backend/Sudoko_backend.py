@@ -273,7 +273,9 @@ def choose_difficulty():
         print("Please type: easy, medium, hard, or expert.")
 
 def holes_for(d):
-    return {"easy": 30, "medium": 40, "hard": 50, "expert": 60}.get(d, 40)
+    # Reduced expert from 60 to 55 for faster generation
+    # 60 holes takes too long to verify uniqueness
+    return {"easy": 30, "medium": 40, "hard": 50, "expert": 55}.get(d, 40)
 
 # --- Board I/O ---
 def print_board(b: Grid, title: str = "Board"):
@@ -359,17 +361,30 @@ def make_puzzle_unique(solution: Grid, holes: int) -> Grid:
     cells = [(r, c) for r in range(9) for c in range(9)]
     random.shuffle(cells)
     removed = 0
+    attempts = 0
+    max_attempts = holes * 3  # Limit attempts to prevent infinite loops
+    
     for r, c in cells:
         if removed >= holes:
             break
+        if attempts >= max_attempts:
+            # If we can't reach target holes, return what we have
+            print(f"⚠️ Reached max attempts, returning puzzle with {removed} holes instead of {holes}")
+            break
+            
         keep = puzzle[r][c]
         if keep == 0:
             continue
+            
         puzzle[r][c] = 0
+        attempts += 1
+        
+        # Check uniqueness
         if count_solutions(puzzle, limit=2) == 1:
             removed += 1
         else:
             puzzle[r][c] = keep  # revert if uniqueness lost
+    
     return puzzle
 
 # --- Tiny Integration Surface ---
