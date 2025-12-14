@@ -346,6 +346,51 @@
     </div>
   </div>
 
+  <!-- Completion Modal -->
+  <div id="completionModal" class="modal">
+    <div class="modal-content" style="max-width: 500px;">
+      <div class="modal-header">
+        <h2>🎉 Congratulations!</h2>
+      </div>
+      <div class="modal-body">
+        <p style="text-align: center; font-size: 18px; margin-bottom: 24px; color: var(--text-primary);">
+          You completed the puzzle!
+        </p>
+
+        <div class="completion-stats">
+          <div class="stat-row">
+            <span class="stat-label">⏱️ Time:</span>
+            <span class="stat-value" id="completionTime">00:00</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">📊 Total Moves:</span>
+            <span class="stat-value" id="completionMoves">0</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">⚡ Avg Time/Move:</span>
+            <span class="stat-value" id="completionAvgTime">0s</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">❌ Mistakes:</span>
+            <span class="stat-value" id="completionMistakes">0</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">💡 Hints Used:</span>
+            <span class="stat-value" id="completionHints">0</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">📈 Stress Score:</span>
+            <span class="stat-value" id="completionStress">0/100</span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-actions" style="gap: 12px;">
+        <button class="modal-btn cancel-btn" id="stayBtn">Stay on Page</button>
+        <button class="modal-btn submit-btn" id="newGameFromCompletionBtn">New Game</button>
+      </div>
+    </div>
+  </div>
+
   <script src="./play.js"></script>
 </body>
 

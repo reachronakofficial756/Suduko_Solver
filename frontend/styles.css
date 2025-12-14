@@ -316,7 +316,7 @@ body::before {
 .floating-logo {
   position: absolute;
   top: 2px;
-  left: 20px;
+  right: 25px;
   width: 140px;
   height: auto;
   z-index: 100;
@@ -669,7 +669,83 @@ body::before {
 
 /* Solving animation */
 .cell.solving {
-  animation: fillIn 0.3s ease;
+  animation: fillIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  background: linear-gradient(135deg, rgba(79, 138, 255, 0.2), rgba(79, 138, 255, 0.1));
+}
+
+@keyframes fillIn {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+
+  50% {
+    transform: scale(1.1);
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Paused grid state */
+#grid.paused {
+  opacity: 0.5;
+  position: relative;
+}
+
+#grid.paused::after {
+  content: '⏸ PAUSED';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--text-primary);
+  background: var(--glass-bg);
+  padding: 20px 40px;
+  border-radius: 16px;
+  border: 2px solid var(--glass-border);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Completion Modal Stats */
+.completion-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.stat-row:last-child {
+  border-bottom: none;
+}
+
+.stat-label {
+  font-size: 16px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.stat-value {
+  font-size: 18px;
+  color: var(--text-primary);
+  font-weight: 700;
 }
 
 /* Pencil marks */
@@ -1635,6 +1711,7 @@ body::before {
 
 .difficulty-option {
   cursor: pointer;
+  justify-content: center;
 }
 
 .difficulty-option input[type="radio"] {
@@ -1648,6 +1725,7 @@ body::before {
   padding: 20px;
   text-align: center;
   transition: all 0.3s ease;
+  justify-content: center;
 }
 
 .option-card:hover {
@@ -1660,6 +1738,7 @@ body::before {
   background: rgba(79, 138, 255, 0.2);
   border-color: var(--accent-blue);
   box-shadow: 0 0 0 3px rgba(79, 138, 255, 0.1);
+
 }
 
 .option-icon {
@@ -1683,6 +1762,7 @@ body::before {
   display: flex;
   gap: 12px;
   justify-content: flex-end;
+  margin: 0px 30px 15px 0px;
 }
 
 .modal-btn {
