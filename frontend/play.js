@@ -22,8 +22,12 @@ let timerInterval = null;
 let startTs = Date.now();
 let pausedTime = 0;
 let isPaused = false;
-let pencilMode = false;
-let pencilMarks = {}; // Store pencil marks for each cell
+
+// Sound effects
+const correctSound = new Audio('./Correct_sound.mp3');
+const incorrectSound = new Audio('./Incorrect_sound.mp3');
+correctSound.volume = 0.5; // Set volume to 50%
+incorrectSound.volume = 1.0;
 
 // ===== PLAYER PERFORMANCE TRACKING =====
 let playerStats = {
@@ -36,7 +40,7 @@ let playerStats = {
   strainScore: 0
 };
 
-// Track user's move history for stepwise display
+// Track user's move history for My Moves display
 let userMoveHistory = [];
 
 function resetPlayerStats() {
@@ -61,7 +65,7 @@ function trackMove(row, col, value) {
   playerStats.totalMoveTime += moveTime;
   playerStats.lastMoveTime = now;
 
-  // Record this move in user history (for stepwise display)
+  // Record this move in user history (for My Moves display)
   userMoveHistory.push({
     row: row,
     col: col,
@@ -271,6 +275,9 @@ function applySmartHighlighting(row, col) {
 }
 
 function selectCell(r, c, el) {
+  // Don't allow selection when paused
+  if (isPaused) return;
+
   selected = [r, c];
   document.querySelectorAll('.cell').forEach(e => e.classList.remove('selected'));
   el.classList.add('selected');
@@ -353,10 +360,19 @@ function applyNumber(n) {
   const cell = document.querySelectorAll('.cell')[idx];
   cell.textContent = n ? String(n) : '';
 
-  // Highlight wrong numbers in red
+  // Play sound and highlight wrong numbers in red
   if (n !== 0 && solution && solution[r] && solution[r][c] !== n) {
     cell.classList.add('wrong-number');
+    // Play incorrect sound
+    incorrectSound.currentTime = 0; // Reset to start
+    incorrectSound.play().catch(e => console.log('Sound play failed:', e));
+  } else if (n !== 0) {
+    cell.classList.remove('wrong-number');
+    // Play correct sound
+    correctSound.currentTime = 0; // Reset to start
+    correctSound.play().catch(e => console.log('Sound play failed:', e));
   } else {
+    // Erasing a number (n === 0)
     cell.classList.remove('wrong-number');
   }
 
@@ -365,6 +381,77 @@ function applyNumber(n) {
 
   updateDigitCounts();
   applySmartHighlighting(r, c);
+  // Check if puzzle is completed
+  checkPuzzleCompletion();
+}
+
+// Check if the puzzle is completed correctly (optimized)
+function checkPuzzleCompletion() {
+  // Early exit if no solution available
+  if (!solution) return false;
+
+  // Single loop to check both completion and correctness
+  // This is more efficient than two separate loops
+  for (let r = 0; r < 9; r++) {
+    for (let c = 0; c < 9; c++) {
+      const value = current[r][c];
+
+      // Early exit if cell is empty
+      if (value === 0) return false;
+
+      // Early exit if value doesn't match solution
+      if (value !== solution[r][c]) return false;
+    }
+  }
+
+  // All cells are filled and correct - puzzle completed!
+  console.log('🎉 Puzzle completed! Stopping timer and showing modal...');
+  clearInterval(timerInterval);
+
+  // Show completion modal with stats
+  setTimeout(() => {
+    showCompletionModal();
+  }, 300);
+
+  return true;
+}
+
+// Show completion modal with game stats
+function showCompletionModal() {
+  console.log('showCompletionModal called');
+
+  const finalTime = formatTime(Date.now() - startTs);
+  const avgTime = playerStats.totalMoves > 0
+    ? ((playerStats.totalMoveTime / playerStats.totalMoves) / 1000).toFixed(1)
+    : '0';
+
+  // Update modal with stats
+  const completionModal = $('completionModal');
+  console.log('Completion modal element:', completionModal);
+
+  if (!completionModal) {
+    console.error('Completion modal not found!');
+    return;
+  }
+
+  const timeEl = $('completionTime');
+  const movesEl = $('completionMoves');
+  const avgTimeEl = $('completionAvgTime');
+  const mistakesEl = $('completionMistakes');
+  const hintsEl = $('completionHints');
+  const stressEl = $('completionStress');
+
+  if (timeEl) timeEl.textContent = finalTime;
+  if (movesEl) movesEl.textContent = playerStats.totalMoves;
+  if (avgTimeEl) avgTimeEl.textContent = `${avgTime}s`;
+  if (mistakesEl) mistakesEl.textContent = playerStats.mistakes;
+  if (hintsEl) hintsEl.textContent = playerStats.hintsUsed;
+  if (stressEl) stressEl.textContent = `${playerStats.strainScore}/100`;
+
+  // Show modal
+  console.log('Adding show class to modal');
+  completionModal.classList.add('show');
+  console.log('Modal classes:', completionModal.classList);
 }
 
 function undo() {
@@ -388,29 +475,115 @@ function undo() {
 }
 
 async function hint() {
-  try {
-    const res = await fetch(`${API_BASE}/api/hint`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ grid: current, solution }) });
-    const data = await res.json();
-    if (data.has_hint) {
-      const { row, col, value } = data;
-      selected = [row, col];
-      applyNumber(value);
+  // If user has selected a cell, solve that specific cell
+  if (selected) {
+    const [r, c] = selected;
+
+    // Check if the selected cell is not fixed and is empty or wrong
+    if (!fixed.has(cellKey(r, c))) {
+      const correctValue = solution[r][c];
+
+      // Only apply hint if the cell is empty or has wrong value
+      if (current[r][c] === 0 || current[r][c] !== correctValue) {
+        applyNumber(correctValue);
+        trackHint();
+        return;
+      } else {
+        // Cell already has correct value
+        alert('This cell already has the correct value!');
+        return;
+      }
+    } else {
+      // Selected cell is fixed (original puzzle number)
+      alert('Cannot use hint on a fixed cell!');
+      return;
     }
-  } catch (e) { console.error(e); }
+  }
+
+
+  // No cell selected - find any empty cell locally
+  let emptyCell = null;
+
+  // Find first empty cell
+  for (let r = 0; r < 9; r++) {
+    for (let c = 0; c < 9; c++) {
+      if (current[r][c] === 0 && !fixed.has(cellKey(r, c))) {
+        emptyCell = { row: r, col: c };
+        break;
+      }
+    }
+    if (emptyCell) break;
+  }
+
+  if (emptyCell) {
+    const { row, col } = emptyCell;
+    const correctValue = solution[row][col];
+
+    // Select the cell and apply the hint
+    selected = [row, col];
+
+    // Highlight the cell
+    const idx = row * 9 + col;
+    const cells = document.querySelectorAll('.cell');
+    cells.forEach(e => e.classList.remove('selected'));
+    cells[idx].classList.add('selected');
+
+    // Apply the correct value
+    applyNumber(correctValue);
+    trackHint();
+  } else {
+    alert('No empty cells found! Puzzle is complete.');
+  }
 }
 
 async function solve() {
+  // If we already have the solution, use it directly
+  if (solution) {
+    try {
+      await animateSolve(solution);
+
+      current = solution.map(row => row.slice()); // Deep copy
+      fixed = new Set();
+      for (let r = 0; r < 9; r++) {
+        for (let c = 0; c < 9; c++) {
+          fixed.add(cellKey(r, c));
+        }
+      }
+      buildGrid();
+      clearInterval(timerInterval);
+
+      // Show completion modal after auto-solve
+      setTimeout(() => {
+        showCompletionModal();
+      }, 800);
+
+      return;
+    } catch (e) {
+      console.error('Error applying solution:', e);
+    }
+  }
+
+  // Fallback: If no solution stored, try backend
   const healthy = await checkHealth();
   if (!healthy) {
-    alert('Backend not reachable at http://127.0.0.1:8000. Start it, then retry.');
+    alert('Backend not reachable and no solution available. Please start a new game.');
     return;
   }
+
   try {
-    const res = await fetch(`${API_BASE}/api/solve`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ grid: current }) });
+    // Send the original puzzle (not current state) to get fresh solution
+    const gridToSolve = puzzle || current;
+    const res = await fetch(`${API_BASE}/api/solve`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ grid: gridToSolve })
+    });
+
     if (!res.ok) {
       const txt = await res.text().catch(() => "<no body>");
       throw new Error(`Solve failed (${res.status}): ${txt}`);
     }
+
     const data = await res.json();
     if (!data.solved || !data.solution) {
       alert('Puzzle could not be solved by the backend.');
@@ -420,10 +593,20 @@ async function solve() {
     await animateSolve(data.solution);
 
     current = data.solution;
+    solution = data.solution; // Store for future use
     fixed = new Set();
-    for (let r = 0; r < 9; r++) for (let c = 0; c < 9; c++) fixed.add(cellKey(r, c));
+    for (let r = 0; r < 9; r++) {
+      for (let c = 0; c < 9; c++) {
+        fixed.add(cellKey(r, c));
+      }
+    }
     buildGrid();
     clearInterval(timerInterval);
+
+    // Show completion modal after auto-solve
+    setTimeout(() => {
+      showCompletionModal();
+    }, 800);
   } catch (e) {
     console.error(e);
     alert(`Solve error: ${e?.message || e}`);
@@ -432,30 +615,44 @@ async function solve() {
 
 async function animateSolve(solution) {
   const cells = document.querySelectorAll('.cell');
-  const emptyCells = [];
+  const cellsToFill = [];
 
+  // Collect all cells that need to be filled or corrected
   for (let r = 0; r < 9; r++) {
     for (let c = 0; c < 9; c++) {
-      if (current[r][c] === 0 && solution[r][c] !== 0) {
-        emptyCells.push({ r, c, value: solution[r][c] });
+      const currentValue = current[r][c];
+      const correctValue = solution[r][c];
+
+      // Include empty cells and incorrect cells
+      if (currentValue === 0 || currentValue !== correctValue) {
+        cellsToFill.push({ r, c, value: correctValue });
       }
     }
   }
 
-  for (const { r, c, value } of emptyCells) {
+  // Animate each cell with a smooth staggered effect
+  for (let i = 0; i < cellsToFill.length; i++) {
+    const { r, c, value } = cellsToFill[i];
     const idx = r * 9 + c;
     const cell = cells[idx];
 
+    // Remove any error styling
+    cell.classList.remove('wrong-number', 'error', 'error-highlight');
+
+    // Add solving animation
     cell.classList.add('solving');
     cell.textContent = String(value);
     current[r][c] = value;
 
-    await new Promise(resolve => setTimeout(resolve, 30));
+    // Staggered delay: faster at the beginning, slower towards the end
+    const delay = Math.min(50, 20 + (i * 0.5));
+    await new Promise(resolve => setTimeout(resolve, delay));
   }
 
+  // Clean up animation classes after completion
   setTimeout(() => {
     cells.forEach(c => c.classList.remove('solving'));
-  }, 300);
+  }, 500);
 }
 
 async function checkHealth() {
@@ -577,9 +774,27 @@ function updateDigitCounts() {
 function togglePause() {
   isPaused = !isPaused;
   const pauseBtn = $('pauseBtn');
+  const gridEl = $('grid');
+
   if (isPaused) {
     pausedTime = Date.now() - startTs;
     clearInterval(timerInterval);
+
+    // Disable grid interaction
+    if (gridEl) {
+      gridEl.classList.add('paused');
+      // Disable all cell buttons
+      gridEl.querySelectorAll('.cell').forEach(cell => {
+        if (!cell.classList.contains('fixed')) {
+          cell.style.pointerEvents = 'none';
+        }
+      });
+    }
+
+    // Clear selection
+    document.querySelectorAll('.cell').forEach(e => e.classList.remove('selected'));
+    selected = null;
+
     // Update the icon span if it exists, otherwise update button directly
     const iconSpan = pauseBtn.querySelector('.icon');
     if (iconSpan) {
@@ -589,6 +804,16 @@ function togglePause() {
     }
   } else {
     startTimer();
+
+    // Enable grid interaction
+    if (gridEl) {
+      gridEl.classList.remove('paused');
+      // Enable all cell buttons
+      gridEl.querySelectorAll('.cell').forEach(cell => {
+        cell.style.pointerEvents = '';
+      });
+    }
+
     // Update the icon span if it exists, otherwise update button directly
     const iconSpan = pauseBtn.querySelector('.icon');
     if (iconSpan) {
@@ -599,15 +824,7 @@ function togglePause() {
   }
 }
 
-function togglePencilMode() {
-  pencilMode = !pencilMode;
-  const pencilBtn = $('pencilBtn');
-  if (pencilMode) {
-    pencilBtn.classList.add('active');
-  } else {
-    pencilBtn.classList.remove('active');
-  }
-}
+
 
 function updateNumberPadSelection() {
   document.querySelectorAll('.number-btn').forEach(btn => {
@@ -674,7 +891,7 @@ function main() {
     modeDisplay.textContent = currentDifficulty.charAt(0).toUpperCase() + currentDifficulty.slice(1);
   }
 
-  // Stepwise user move history
+  // My Moves functionality
   const getStepsBtn = $('getStepsBtn');
   if (getStepsBtn) {
     getStepsBtn.addEventListener('click', () => {
@@ -889,6 +1106,38 @@ function main() {
     window.addEventListener('storage', (e) => {
       if (e.key === 'theme') {
         updateThemeIcon();
+      }
+    });
+  }
+
+  // Completion modal controls
+  const completionModal = $('completionModal');
+  const stayBtn = $('stayBtn');
+  const newGameFromCompletionBtn = $('newGameFromCompletionBtn');
+
+  if (stayBtn) {
+    stayBtn.addEventListener('click', () => {
+      if (completionModal) {
+        completionModal.classList.remove('show');
+      }
+    });
+  }
+
+  if (newGameFromCompletionBtn) {
+    newGameFromCompletionBtn.addEventListener('click', () => {
+      if (completionModal) {
+        completionModal.classList.remove('show');
+      }
+      // Show difficulty modal to start new game
+      showDifficultyModal();
+    });
+  }
+
+  // Close completion modal when clicking outside
+  if (completionModal) {
+    completionModal.addEventListener('click', (e) => {
+      if (e.target === completionModal) {
+        completionModal.classList.remove('show');
       }
     });
   }
