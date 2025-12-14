@@ -713,6 +713,37 @@ body::before {
   z-index: 10;
 }
 
+/* Disabled grid state (game over) */
+#grid.disabled {
+  opacity: 0.6;
+  position: relative;
+  pointer-events: none;
+}
+
+#grid.disabled::after {
+  content: '🎮 GAME OVER';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-primary);
+  background: var(--glass-bg);
+  padding: 16px 32px;
+  border-radius: 16px;
+  border: 2px solid var(--glass-border);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  pointer-events: none;
+  z-index: 10;
+  text-align: center;
+}
+
+#grid.disabled .cell {
+  cursor: not-allowed !important;
+}
+
+
 /* Completion Modal Stats */
 .completion-stats {
   display: flex;
