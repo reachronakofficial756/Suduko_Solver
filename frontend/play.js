@@ -138,24 +138,47 @@ class PuzzleCache {
 
     for (let i = 0; i < count; i++) {
       try {
-        const res = await fetch(`${API_BASE}/api/generate?difficulty=${encodeURIComponent(difficulty)}`);
+        // Add timeout to prevent hanging on slow APIs
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
+        const res = await fetch(`${API_BASE}/api/generate?difficulty=${encodeURIComponent(difficulty)}`, {
+          signal: controller.signal,
+          cache: 'no-store'
+        });
+
+        clearTimeout(timeoutId);
+
         if (res.ok) {
           const data = await res.json();
           this.addPuzzle(difficulty, data.puzzle, data.solution);
+        } else {
+          console.warn(`⚠️ Prefetch failed for ${difficulty}: HTTP ${res.status}`);
         }
       } catch (e) {
-        console.error(`Failed to prefetch ${difficulty} puzzle:`, e);
+        // Silently fail - don't break the app if prefetch fails
+        if (e.name === 'AbortError') {
+          console.warn(`⏱️ Prefetch timeout for ${difficulty} puzzle`);
+        } else {
+          console.warn(`⚠️ Failed to prefetch ${difficulty} puzzle:`, e.message);
+        }
+        // Don't retry on error - just continue
       }
     }
   }
 
   async warmupCache() {
-    // Prefetch puzzles for all difficulties
+    // Non-blocking warmup - don't wait for completion
+    // This runs in background and doesn't block game startup
     const difficulties = ['easy', 'medium', 'hard', 'expert'];
+
+    // Prefetch one at a time to avoid overwhelming the API
     for (const diff of difficulties) {
       const cached = (this.cache.puzzles[diff] || []).length;
       if (cached < CACHE_SIZE_PER_DIFFICULTY) {
-        await this.prefetchPuzzles(diff, CACHE_SIZE_PER_DIFFICULTY - cached);
+        // Don't await - let it run in background
+        this.prefetchPuzzles(diff, Math.min(2, CACHE_SIZE_PER_DIFFICULTY - cached))
+          .catch(e => console.warn(`Warmup failed for ${diff}:`, e.message));
       }
     }
   }
