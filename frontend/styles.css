@@ -1710,6 +1710,7 @@ body::before {
 }
 
 .difficulty-option {
+  display: flex;
   cursor: pointer;
   justify-content: center;
 }
@@ -1725,7 +1726,7 @@ body::before {
   padding: 20px;
   text-align: center;
   transition: all 0.3s ease;
-  justify-content: center;
+  margin-left: 35px;
 }
 
 .option-card:hover {
