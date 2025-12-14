@@ -9,7 +9,15 @@ from Sudoko_backend import (
     get_puzzle_stats, is_puzzle_complete, is_puzzle_correct,
     get_valid_numbers_for_cell
 )
-from puzzle_cache import get_cache
+
+# Optional import - fallback to direct generation if cache not available
+try:
+    from puzzle_cache import get_cache
+    CACHE_AVAILABLE = True
+except ImportError:
+    CACHE_AVAILABLE = False
+    print("⚠️ puzzle_cache not available - using direct puzzle generation")
+
 
 
 # Types
@@ -108,16 +116,20 @@ app.add_middleware(
 async def startup_event():
     """Pre-fill the puzzle cache on startup for instant responses."""
     print("🚀 Starting Sudoku API...")
-    cache = get_cache()
-    stats = cache.get_stats()
-    total_cached = sum(stats.values())
     
-    if total_cached < 10:  # If cache is low, pre-fill it
-        print("📦 Pre-filling puzzle cache...")
-        # Pre-fill with 3 puzzles per difficulty for quick startup
-        cache.prefill_cache(count_per_difficulty=3)
+    if CACHE_AVAILABLE:
+        cache = get_cache()
+        stats = cache.get_stats()
+        total_cached = sum(stats.values())
+        
+        if total_cached < 10:  # If cache is low, pre-fill it
+            print("📦 Pre-filling puzzle cache...")
+            # Pre-fill with 3 puzzles per difficulty for quick startup
+            cache.prefill_cache(count_per_difficulty=3)
+        else:
+            print(f"✅ Cache already filled with {total_cached} puzzles")
     else:
-        print(f"✅ Cache already filled with {total_cached} puzzles")
+        print("⚠️ Running without cache - puzzles will be generated on demand")
     
     print("✨ Sudoku API ready!")
 
@@ -125,9 +137,16 @@ async def startup_event():
 @app.get("/api/cache-stats")
 def cache_stats():
     """Get current puzzle cache statistics."""
+    if not CACHE_AVAILABLE:
+        return {
+            "cache_available": False,
+            "message": "Cache not available - using direct generation"
+        }
+    
     cache = get_cache()
     stats = cache.get_stats()
     return {
+        "cache_available": True,
         "stats": stats,
         "total": sum(stats.values()),
         "pool_size": cache.pool_size
@@ -145,9 +164,14 @@ def generate(body: GenerateRequest):
     if difficulty not in {"easy", "medium", "hard", "expert"}:
         raise HTTPException(status_code=400, detail="difficulty must be one of: easy, medium, hard, expert")
     
-    # Use cached puzzle for instant response
-    cache = get_cache()
-    puzzle, solution = cache.get_puzzle(difficulty)
+    # Use cached puzzle if available, otherwise generate directly
+    if CACHE_AVAILABLE:
+        cache = get_cache()
+        puzzle, solution = cache.get_puzzle(difficulty)
+    else:
+        game = SudokuGame()
+        puzzle, solution = game.new_game(difficulty)
+    
     return {"puzzle": puzzle, "solution": solution, "difficulty": difficulty}
 
 
@@ -157,9 +181,14 @@ def generate_get(difficulty: Optional[str] = "medium"):
     if difficulty_lc not in {"easy", "medium", "hard", "expert"}:
         raise HTTPException(status_code=400, detail="difficulty must be one of: easy, medium, hard, expert")
     
-    # Use cached puzzle for instant response
-    cache = get_cache()
-    puzzle, solution = cache.get_puzzle(difficulty_lc)
+    # Use cached puzzle if available, otherwise generate directly
+    if CACHE_AVAILABLE:
+        cache = get_cache()
+        puzzle, solution = cache.get_puzzle(difficulty_lc)
+    else:
+        game = SudokuGame()
+        puzzle, solution = game.new_game(difficulty_lc)
+    
     return {"puzzle": puzzle, "solution": solution, "difficulty": difficulty_lc}
 
 
