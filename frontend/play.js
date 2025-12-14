@@ -712,15 +712,46 @@ async function hint() {
 }
 
 async function solve() {
-  // Check if auto-solve is allowed for current difficulty
-  // Auto-solve triggers game over for all difficulties
-  gameOver = true;
-  clearInterval(timerInterval);
+  // Auto-solve is not allowed, but show the animation first
+  if (!solution) {
+    alert('No solution available. Please start a new game.');
+    return;
+  }
 
-  setTimeout(() => {
-    showGameOverModal('autosolve');
-  }, 300);
-  return;
+  try {
+    // Show the animation first
+    await animateSolve(solution);
+
+    // Update the grid with the solution
+    current = solution.map(row => row.slice()); // Deep copy
+    fixed = new Set();
+    for (let r = 0; r < 9; r++) {
+      for (let c = 0; c < 9; c++) {
+        fixed.add(cellKey(r, c));
+      }
+    }
+    buildGrid();
+
+    // Stop the timer
+    clearInterval(timerInterval);
+
+    // Mark game as over
+    gameOver = true;
+
+    // Wait 1 second after animation completes, then show game over modal
+    setTimeout(() => {
+      showGameOverModal('autosolve');
+    }, 1000);
+
+  } catch (e) {
+    console.error('Error during auto-solve:', e);
+    // Still show game over even if animation fails
+    gameOver = true;
+    clearInterval(timerInterval);
+    setTimeout(() => {
+      showGameOverModal('autosolve');
+    }, 300);
+  }
 }
 
 async function animateSolve(solution) {
