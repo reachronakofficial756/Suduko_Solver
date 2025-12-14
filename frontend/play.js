@@ -43,6 +43,18 @@ let playerStats = {
 // Track user's move history for My Moves display
 let userMoveHistory = [];
 
+// ===== DIFFICULTY LIMITS =====
+const DIFFICULTY_LIMITS = {
+  easy: { hints: 10, mistakes: Infinity, timeLimit: 30 * 60 * 1000 }, // 30 minutes
+  medium: { hints: 10, mistakes: 10, timeLimit: 20 * 60 * 1000 }, // 20 minutes
+  hard: { hints: 3, mistakes: 5, timeLimit: 10 * 60 * 1000 }, // 10 minutes
+  expert: { hints: 0, mistakes: 3, timeLimit: 10 * 60 * 1000 } // 10 minutes
+};
+
+let currentDifficulty = 'medium'; // Default
+let gameOver = false;
+let timeRemaining = 0; // Time remaining in milliseconds
+
 function resetPlayerStats() {
   userMoveHistory = []; // Clear move history
   playerStats = {
@@ -76,10 +88,32 @@ function trackMove(row, col, value) {
   // Check if the placed number is wrong (doesn't match solution)
   if (value !== 0 && solution && solution[row] && solution[row][col] !== value) {
     playerStats.mistakes++;
+    // Check if mistakes limit exceeded
+    checkGameOver();
   }
 
   calculateStrainScore();
   updateStatsDisplay();
+}
+
+// Check if game over conditions are met
+function checkGameOver() {
+  if (gameOver) return; // Already game over
+
+  const limits = DIFFICULTY_LIMITS[currentDifficulty];
+
+  // Check mistakes limit
+  if (playerStats.mistakes > limits.mistakes) {
+    gameOver = true;
+    clearInterval(timerInterval);
+
+    setTimeout(() => {
+      showGameOverModal('mistakes');
+    }, 300);
+    return true;
+  }
+
+  return false;
 }
 
 function trackUndo() {
@@ -193,24 +227,73 @@ function formatTime(ms) {
 
 function startTimer() {
   clearInterval(timerInterval);
-  startTs = Date.now() - pausedTime;
+
+  // Calculate remaining time from when we paused
+  const elapsed = pausedTime;
+  timeRemaining = DIFFICULTY_LIMITS[currentDifficulty].timeLimit - elapsed;
+
   const timerEl = $('timer');
-  if (timerEl) timerEl.textContent = formatTime(pausedTime);
+  if (timerEl) timerEl.textContent = formatTime(timeRemaining);
+
   timerInterval = setInterval(() => {
+    timeRemaining -= 1000; // Decrease by 1 second
+
     const timerEl = $('timer');
-    if (timerEl) timerEl.textContent = formatTime(Date.now() - startTs);
+    if (timerEl) {
+      if (timeRemaining <= 0) {
+        timerEl.textContent = '00:00';
+        clearInterval(timerInterval);
+
+        // Time's up - game over
+        if (!gameOver) {
+          gameOver = true;
+          setTimeout(() => {
+            showGameOverModal('time');
+          }, 300);
+        }
+      } else {
+        timerEl.textContent = formatTime(timeRemaining);
+
+        // Update pausedTime for pause/resume functionality
+        pausedTime = DIFFICULTY_LIMITS[currentDifficulty].timeLimit - timeRemaining;
+      }
+    }
   }, 1000);
 }
 
 function resetTimer() {
   clearInterval(timerInterval);
   pausedTime = 0;
-  startTs = Date.now();
+
+  // Set initial time remaining based on difficulty
+  timeRemaining = DIFFICULTY_LIMITS[currentDifficulty].timeLimit;
+
   const timerEl = $('timer');
-  if (timerEl) timerEl.textContent = '00:00';
+  if (timerEl) timerEl.textContent = formatTime(timeRemaining);
+
   timerInterval = setInterval(() => {
+    timeRemaining -= 1000; // Decrease by 1 second
+
     const timerEl = $('timer');
-    if (timerEl) timerEl.textContent = formatTime(Date.now() - startTs);
+    if (timerEl) {
+      if (timeRemaining <= 0) {
+        timerEl.textContent = '00:00';
+        clearInterval(timerInterval);
+
+        // Time's up - game over
+        if (!gameOver) {
+          gameOver = true;
+          setTimeout(() => {
+            showGameOverModal('time');
+          }, 300);
+        }
+      } else {
+        timerEl.textContent = formatTime(timeRemaining);
+
+        // Update pausedTime for pause/resume functionality
+        pausedTime = DIFFICULTY_LIMITS[currentDifficulty].timeLimit - timeRemaining;
+      }
+    }
   }, 1000);
 }
 
@@ -218,7 +301,12 @@ function cellKey(r, c) { return `${r},${c}`; }
 
 function buildGrid() {
   const gridEl = $('grid');
-  gridEl.innerHTML = '';
+
+  // Use DocumentFragment for batch DOM updates (much faster)
+  const fragment = document.createDocumentFragment();
+
+  // Pre-calculate all cells
+  const cells = [];
   for (let r = 0; r < 9; r++) {
     for (let c = 0; c < 9; c++) {
       const v = current[r][c];
@@ -230,15 +318,34 @@ function buildGrid() {
       if ((c + 1) % 3 === 0 && c !== 8) btn.classList.add('bold-right');
       if ((r + 1) % 3 === 0 && r !== 8) btn.classList.add('bold-bottom');
       btn.textContent = v ? String(v) : '';
+
       if (fixed.has(cellKey(r, c))) {
         btn.classList.add('fixed');
         btn.disabled = true;
       }
-      btn.addEventListener('click', () => selectCell(r, c, btn));
-      gridEl.appendChild(btn);
+
+      // Store event listener info for later attachment
+      cells.push({ btn, r, c });
+      fragment.appendChild(btn);
     }
   }
-  updateDigitCounts();
+
+  // Single DOM update (much faster than 81 individual appendChild calls)
+  gridEl.innerHTML = '';
+  gridEl.appendChild(fragment);
+
+  // Attach event listeners after DOM is updated
+  // Use requestAnimationFrame to avoid blocking the main thread
+  requestAnimationFrame(() => {
+    cells.forEach(({ btn, r, c }) => {
+      btn.addEventListener('click', () => selectCell(r, c, btn));
+    });
+  });
+
+  // Update digit counts asynchronously
+  requestAnimationFrame(() => {
+    updateDigitCounts();
+  });
 }
 
 // Smart highlighting: row, column, box, and same numbers
@@ -454,6 +561,57 @@ function showCompletionModal() {
   console.log('Modal classes:', completionModal.classList);
 }
 
+// Show game over modal when limits are exceeded
+function showGameOverModal(reason) {
+  const finalTime = formatTime(Date.now() - startTs);
+  const avgTime = playerStats.totalMoves > 0
+    ? ((playerStats.totalMoveTime / playerStats.totalMoves) / 1000).toFixed(1)
+    : '0';
+
+  const completionModal = $('completionModal');
+  if (!completionModal) return;
+
+  // Update modal header for game over
+  const modalHeader = completionModal.querySelector('.modal-header h2');
+  if (modalHeader) {
+    modalHeader.textContent = '😞 Game Over!';
+  }
+
+  // Update message
+  const modalBody = completionModal.querySelector('.modal-body p');
+  if (modalBody) {
+    const limits = DIFFICULTY_LIMITS[currentDifficulty];
+    if (reason === 'mistakes') {
+      modalBody.textContent = `You exceeded the mistake limit of ${limits.mistakes} for ${currentDifficulty} mode!`;
+    } else if (reason === 'hints') {
+      modalBody.textContent = `You exceeded the hint limit of ${limits.hints} for ${currentDifficulty} mode!`;
+    } else if (reason === 'autosolve') {
+      modalBody.textContent = `Auto-solve is not allowed in ${currentDifficulty} mode!`;
+    } else if (reason === 'time') {
+      const timeLimit = Math.floor(limits.timeLimit / 60000); // Convert to minutes
+      modalBody.textContent = `Time's up! You didn't complete the puzzle within ${timeLimit} minutes for ${currentDifficulty} mode!`;
+    }
+  }
+
+  // Update stats
+  const timeEl = $('completionTime');
+  const movesEl = $('completionMoves');
+  const avgTimeEl = $('completionAvgTime');
+  const mistakesEl = $('completionMistakes');
+  const hintsEl = $('completionHints');
+  const stressEl = $('completionStress');
+
+  if (timeEl) timeEl.textContent = finalTime;
+  if (movesEl) movesEl.textContent = playerStats.totalMoves;
+  if (avgTimeEl) avgTimeEl.textContent = `${avgTime}s`;
+  if (mistakesEl) mistakesEl.textContent = playerStats.mistakes;
+  if (hintsEl) hintsEl.textContent = playerStats.hintsUsed;
+  if (stressEl) stressEl.textContent = `${playerStats.strainScore}/100`;
+
+  // Show modal
+  completionModal.classList.add('show');
+}
+
 function undo() {
   const last = undoStack.pop();
   if (!last) return;
@@ -475,6 +633,23 @@ function undo() {
 }
 
 async function hint() {
+  // Check if game is over
+  if (gameOver) {
+    alert('Game is over! Start a new game.');
+    return;
+  }
+
+  // Check hint limit for current difficulty
+  const limits = DIFFICULTY_LIMITS[currentDifficulty];
+  if (playerStats.hintsUsed >= limits.hints) {
+    gameOver = true;
+    clearInterval(timerInterval);
+    setTimeout(() => {
+      showGameOverModal('hints');
+    }, 300);
+    return;
+  }
+
   // If user has selected a cell, solve that specific cell
   if (selected) {
     const [r, c] = selected;
@@ -537,80 +712,15 @@ async function hint() {
 }
 
 async function solve() {
-  // If we already have the solution, use it directly
-  if (solution) {
-    try {
-      await animateSolve(solution);
+  // Check if auto-solve is allowed for current difficulty
+  // Auto-solve triggers game over for all difficulties
+  gameOver = true;
+  clearInterval(timerInterval);
 
-      current = solution.map(row => row.slice()); // Deep copy
-      fixed = new Set();
-      for (let r = 0; r < 9; r++) {
-        for (let c = 0; c < 9; c++) {
-          fixed.add(cellKey(r, c));
-        }
-      }
-      buildGrid();
-      clearInterval(timerInterval);
-
-      // Show completion modal after auto-solve
-      setTimeout(() => {
-        showCompletionModal();
-      }, 800);
-
-      return;
-    } catch (e) {
-      console.error('Error applying solution:', e);
-    }
-  }
-
-  // Fallback: If no solution stored, try backend
-  const healthy = await checkHealth();
-  if (!healthy) {
-    alert('Backend not reachable and no solution available. Please start a new game.');
-    return;
-  }
-
-  try {
-    // Send the original puzzle (not current state) to get fresh solution
-    const gridToSolve = puzzle || current;
-    const res = await fetch(`${API_BASE}/api/solve`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ grid: gridToSolve })
-    });
-
-    if (!res.ok) {
-      const txt = await res.text().catch(() => "<no body>");
-      throw new Error(`Solve failed (${res.status}): ${txt}`);
-    }
-
-    const data = await res.json();
-    if (!data.solved || !data.solution) {
-      alert('Puzzle could not be solved by the backend.');
-      return;
-    }
-
-    await animateSolve(data.solution);
-
-    current = data.solution;
-    solution = data.solution; // Store for future use
-    fixed = new Set();
-    for (let r = 0; r < 9; r++) {
-      for (let c = 0; c < 9; c++) {
-        fixed.add(cellKey(r, c));
-      }
-    }
-    buildGrid();
-    clearInterval(timerInterval);
-
-    // Show completion modal after auto-solve
-    setTimeout(() => {
-      showCompletionModal();
-    }, 800);
-  } catch (e) {
-    console.error(e);
-    alert(`Solve error: ${e?.message || e}`);
-  }
+  setTimeout(() => {
+    showGameOverModal('autosolve');
+  }, 300);
+  return;
 }
 
 async function animateSolve(solution) {
@@ -708,6 +818,10 @@ async function startGameWithDifficulty(difficulty) {
   // Save difficulty to localStorage
   localStorage.setItem('difficulty', difficulty);
 
+  // Set current difficulty and reset game over flag
+  currentDifficulty = difficulty;
+  gameOver = false;
+
   // Update mode display
   const modeDisplay = $('currentMode');
   if (modeDisplay) {
@@ -729,12 +843,56 @@ async function startGameWithDifficulty(difficulty) {
     current = puzzle.map(row => row.slice());
     fixed = new Set();
     for (let r = 0; r < 9; r++) for (let c = 0; c < 9; c++) if (puzzle[r][c] !== 0) fixed.add(cellKey(r, c));
+
+    // Reset all game state
     undoStack = [];
     isPaused = false;
-    $('pauseBtn').textContent = '⏸';
+    selected = null;
+    selectedNumber = null;
+
+    // Reset pause button
+    const pauseBtn = $('pauseBtn');
+    if (pauseBtn) {
+      const iconSpan = pauseBtn.querySelector('.icon');
+      if (iconSpan) {
+        iconSpan.textContent = '⏸';
+      } else {
+        pauseBtn.textContent = '⏸';
+      }
+    }
+
+    // Reset player stats and move history
     resetPlayerStats();
+
+    // Clear any paused state from grid
+    const gridEl = $('grid');
+    if (gridEl) {
+      gridEl.classList.remove('paused');
+      gridEl.querySelectorAll('.cell').forEach(cell => {
+        cell.style.pointerEvents = '';
+        cell.classList.remove('selected', 'wrong-number', 'error', 'error-highlight', 'solving');
+      });
+    }
+
+    // Build fresh grid
     buildGrid();
+
+    // Reset and start timer with new difficulty time limit
     resetTimer();
+
+    // Update digit counts
+    updateDigitCounts();
+
+    // Reset My Moves display
+    const stepwiseList = $('stepwiseList');
+    if (stepwiseList) {
+      stepwiseList.innerHTML = '<div class="stepwise-placeholder">Start playing to see your moves</div>';
+    }
+    const stepCount = $('stepCount');
+    if (stepCount) {
+      stepCount.textContent = '0 moves';
+    }
+
   } catch (e) {
     console.error(e);
     alert(`Failed to start a new game. ${e?.message || e}`);
@@ -777,8 +935,10 @@ function togglePause() {
   const gridEl = $('grid');
 
   if (isPaused) {
-    pausedTime = Date.now() - startTs;
+    // Stop the timer and save current remaining time
     clearInterval(timerInterval);
+    // pausedTime now represents how much time has elapsed
+    pausedTime = DIFFICULTY_LIMITS[currentDifficulty].timeLimit - timeRemaining;
 
     // Disable grid interaction
     if (gridEl) {
@@ -803,6 +963,7 @@ function togglePause() {
       pauseBtn.textContent = '▶';
     }
   } else {
+    // Resume the timer from where it was paused
     startTimer();
 
     // Enable grid interaction
