@@ -51,6 +51,132 @@ const DIFFICULTY_LIMITS = {
   expert: { hints: 0, mistakes: 3, timeLimit: 10 * 60 * 1000 } // 10 minutes
 };
 
+// ===== PUZZLE CACHE SYSTEM =====
+const PUZZLE_CACHE_KEY = 'sudoku_puzzle_cache';
+const CACHE_SIZE_PER_DIFFICULTY = 3; // Keep 3 puzzles per difficulty
+const CACHE_EXPIRY_DAYS = 7; // Cache expires after 7 days
+
+class PuzzleCache {
+  constructor() {
+    this.cache = this.loadCache();
+  }
+
+  loadCache() {
+    try {
+      const cached = localStorage.getItem(PUZZLE_CACHE_KEY);
+      if (!cached) return this.createEmptyCache();
+
+      const data = JSON.parse(cached);
+
+      // Check if cache is expired
+      const now = Date.now();
+      if (data.timestamp && (now - data.timestamp) > (CACHE_EXPIRY_DAYS * 24 * 60 * 60 * 1000)) {
+        console.log('🗑️ Cache expired, creating new cache');
+        return this.createEmptyCache();
+      }
+
+      return data;
+    } catch (e) {
+      console.error('Failed to load puzzle cache:', e);
+      return this.createEmptyCache();
+    }
+  }
+
+  createEmptyCache() {
+    return {
+      timestamp: Date.now(),
+      puzzles: {
+        easy: [],
+        medium: [],
+        hard: [],
+        expert: []
+      }
+    };
+  }
+
+  saveCache() {
+    try {
+      localStorage.setItem(PUZZLE_CACHE_KEY, JSON.stringify(this.cache));
+    } catch (e) {
+      console.error('Failed to save puzzle cache:', e);
+    }
+  }
+
+  getPuzzle(difficulty) {
+    const puzzles = this.cache.puzzles[difficulty] || [];
+    if (puzzles.length > 0) {
+      const puzzle = puzzles.shift(); // Remove from cache
+      this.saveCache();
+      console.log(`⚡ Loaded ${difficulty} puzzle from cache (${puzzles.length} remaining)`);
+
+      // Prefetch more puzzles in background if cache is low
+      if (puzzles.length < 2) {
+        this.prefetchPuzzles(difficulty, 2);
+      }
+
+      return puzzle;
+    }
+    return null;
+  }
+
+  addPuzzle(difficulty, puzzle, solution) {
+    const puzzles = this.cache.puzzles[difficulty] || [];
+
+    // Don't exceed cache size
+    if (puzzles.length >= CACHE_SIZE_PER_DIFFICULTY) {
+      return;
+    }
+
+    puzzles.push({ puzzle, solution, cached_at: Date.now() });
+    this.cache.puzzles[difficulty] = puzzles;
+    this.saveCache();
+    console.log(`💾 Cached ${difficulty} puzzle (${puzzles.length}/${CACHE_SIZE_PER_DIFFICULTY})`);
+  }
+
+  async prefetchPuzzles(difficulty, count = 1) {
+    console.log(`🔄 Prefetching ${count} ${difficulty} puzzles...`);
+
+    for (let i = 0; i < count; i++) {
+      try {
+        const res = await fetch(`${API_BASE}/api/generate?difficulty=${encodeURIComponent(difficulty)}`);
+        if (res.ok) {
+          const data = await res.json();
+          this.addPuzzle(difficulty, data.puzzle, data.solution);
+        }
+      } catch (e) {
+        console.error(`Failed to prefetch ${difficulty} puzzle:`, e);
+      }
+    }
+  }
+
+  async warmupCache() {
+    // Prefetch puzzles for all difficulties
+    const difficulties = ['easy', 'medium', 'hard', 'expert'];
+    for (const diff of difficulties) {
+      const cached = (this.cache.puzzles[diff] || []).length;
+      if (cached < CACHE_SIZE_PER_DIFFICULTY) {
+        await this.prefetchPuzzles(diff, CACHE_SIZE_PER_DIFFICULTY - cached);
+      }
+    }
+  }
+
+  getStats() {
+    const stats = {};
+    for (const [diff, puzzles] of Object.entries(this.cache.puzzles)) {
+      stats[diff] = puzzles.length;
+    }
+    return stats;
+  }
+}
+
+// Global cache instance
+const puzzleCache = new PuzzleCache();
+
+// Warm up cache on page load (non-blocking)
+setTimeout(() => {
+  puzzleCache.warmupCache().catch(e => console.error('Cache warmup failed:', e));
+}, 1000);
+
 let currentDifficulty = 'medium'; // Default
 let gameOver = false;
 let timeRemaining = 0; // Time remaining in milliseconds
@@ -85,8 +211,8 @@ function trackMove(row, col, value) {
     timestamp: now
   });
 
-  // Check if the placed number is wrong (doesn't match solution)
-  if (value !== 0 && solution && solution[row] && solution[row][col] !== value) {
+  // Check if the placed number violates Sudoku rules (not based on pre-computed solution)
+  if (value !== 0 && !isValidPlacement(current, row, col, value)) {
     playerStats.mistakes++;
     // Check if mistakes limit exceeded
     checkGameOver();
@@ -106,6 +232,9 @@ function checkGameOver() {
   if (playerStats.mistakes > limits.mistakes) {
     gameOver = true;
     clearInterval(timerInterval);
+
+    // Disable game controls
+    disableGameControls();
 
     setTimeout(() => {
       showGameOverModal('mistakes');
@@ -218,6 +347,112 @@ function updateStatsDisplay() {
 
 function $(id) { return document.getElementById(id); }
 
+// Disable game controls when game is over
+function disableGameControls() {
+  // Disable grid cells
+  const gridEl = $('grid');
+  if (gridEl) {
+    gridEl.classList.add('disabled');
+    const cells = gridEl.querySelectorAll('.cell');
+    cells.forEach(cell => {
+      cell.disabled = true;
+      cell.style.cursor = 'not-allowed';
+    });
+  }
+
+  // Disable action buttons except New Game
+  const undoBtn = $('undoBtn');
+  const autoSolveBtn = $('autoSolveBtn');
+  const hintBtn = $('hintBtn');
+  const pauseBtn = $('pauseBtn');
+
+  if (undoBtn) {
+    undoBtn.disabled = true;
+    undoBtn.style.opacity = '0.5';
+    undoBtn.style.cursor = 'not-allowed';
+  }
+  if (autoSolveBtn) {
+    autoSolveBtn.disabled = true;
+    autoSolveBtn.style.opacity = '0.5';
+    autoSolveBtn.style.cursor = 'not-allowed';
+  }
+  if (hintBtn) {
+    hintBtn.disabled = true;
+    hintBtn.style.opacity = '0.5';
+    hintBtn.style.cursor = 'not-allowed';
+  }
+  if (pauseBtn) {
+    pauseBtn.disabled = true;
+    pauseBtn.style.opacity = '0.5';
+    pauseBtn.style.cursor = 'not-allowed';
+  }
+
+  // Disable number input panel
+  const smartInputPanel = $('smartInputPanel');
+  if (smartInputPanel) {
+    const numberBtns = smartInputPanel.querySelectorAll('.number-btn');
+    numberBtns.forEach(btn => {
+      btn.disabled = true;
+      btn.style.opacity = '0.5';
+      btn.style.cursor = 'not-allowed';
+    });
+  }
+}
+
+// Enable game controls when starting a new game
+function enableGameControls() {
+  // Enable grid cells
+  const gridEl = $('grid');
+  if (gridEl) {
+    gridEl.classList.remove('disabled');
+    const cells = gridEl.querySelectorAll('.cell');
+    cells.forEach(cell => {
+      if (!cell.classList.contains('fixed')) {
+        cell.disabled = false;
+        cell.style.cursor = 'pointer';
+      }
+    });
+  }
+
+  // Enable action buttons
+  const undoBtn = $('undoBtn');
+  const autoSolveBtn = $('autoSolveBtn');
+  const hintBtn = $('hintBtn');
+  const pauseBtn = $('pauseBtn');
+
+  if (undoBtn) {
+    undoBtn.disabled = false;
+    undoBtn.style.opacity = '1';
+    undoBtn.style.cursor = 'pointer';
+  }
+  if (autoSolveBtn) {
+    autoSolveBtn.disabled = false;
+    autoSolveBtn.style.opacity = '1';
+    autoSolveBtn.style.cursor = 'pointer';
+  }
+  if (hintBtn) {
+    hintBtn.disabled = false;
+    hintBtn.style.opacity = '1';
+    hintBtn.style.cursor = 'pointer';
+  }
+  if (pauseBtn) {
+    pauseBtn.disabled = false;
+    pauseBtn.style.opacity = '1';
+    pauseBtn.style.cursor = 'pointer';
+  }
+
+  // Enable number input panel
+  const smartInputPanel = $('smartInputPanel');
+  if (smartInputPanel) {
+    const numberBtns = smartInputPanel.querySelectorAll('.number-btn');
+    numberBtns.forEach(btn => {
+      btn.disabled = false;
+      btn.style.opacity = '1';
+      btn.style.cursor = 'pointer';
+    });
+  }
+}
+
 function formatTime(ms) {
   const s = Math.floor(ms / 1000);
   const mm = String(Math.floor(s / 60)).padStart(2, '0');
@@ -246,6 +481,7 @@ function startTimer() {
 
         // Time's up - game over
         if (!gameOver) {
+          disableGameControls();
           gameOver = true;
           setTimeout(() => {
             showGameOverModal('time');
@@ -277,6 +513,7 @@ function resetTimer() {
     const timerEl = $('timer');
     if (timerEl) {
       if (timeRemaining <= 0) {
+        disableGameControls();
         timerEl.textContent = '00:00';
         clearInterval(timerInterval);
 
@@ -456,8 +693,18 @@ function applyNumber(n) {
   const prev = current[r][c];
   if (prev === n) return;
 
-  // Allow placement even if invalid, but show warning
-  if (!isValidPlacement(current, r, c, n) && n !== 0) {
+  // Temporarily set the value to check validity
+  const tempValue = current[r][c];
+  current[r][c] = n;
+
+  // Check if placement violates Sudoku rules
+  const isInvalid = !isValidPlacement(current, r, c, n) && n !== 0;
+
+  // Restore for undo stack
+  current[r][c] = tempValue;
+
+  // Show warning if invalid placement
+  if (isInvalid) {
     highlightError(r, c);
   }
 
@@ -467,16 +714,16 @@ function applyNumber(n) {
   const cell = document.querySelectorAll('.cell')[idx];
   cell.textContent = n ? String(n) : '';
 
-  // Play sound and highlight wrong numbers in red
-  if (n !== 0 && solution && solution[r] && solution[r][c] !== n) {
+  // Mark as wrong ONLY if it violates Sudoku rules (not based on pre-computed solution)
+  if (isInvalid) {
     cell.classList.add('wrong-number');
     // Play incorrect sound
-    incorrectSound.currentTime = 0; // Reset to start
+    incorrectSound.currentTime = 0;
     incorrectSound.play().catch(e => console.log('Sound play failed:', e));
   } else if (n !== 0) {
     cell.classList.remove('wrong-number');
     // Play correct sound
-    correctSound.currentTime = 0; // Reset to start
+    correctSound.currentTime = 0;
     correctSound.play().catch(e => console.log('Sound play failed:', e));
   } else {
     // Erasing a number (n === 0)
@@ -494,26 +741,54 @@ function applyNumber(n) {
 
 // Check if the puzzle is completed correctly (optimized)
 function checkPuzzleCompletion() {
-  // Early exit if no solution available
-  if (!solution) return false;
-
-  // Single loop to check both completion and correctness
-  // This is more efficient than two separate loops
+  // Check if all cells are filled
   for (let r = 0; r < 9; r++) {
     for (let c = 0; c < 9; c++) {
-      const value = current[r][c];
-
-      // Early exit if cell is empty
-      if (value === 0) return false;
-
-      // Early exit if value doesn't match solution
-      if (value !== solution[r][c]) return false;
+      if (current[r][c] === 0) return false; // Empty cell found
     }
   }
 
-  // All cells are filled and correct - puzzle completed!
+  // All cells are filled - now validate the solution using Sudoku rules
+  // Check all rows
+  for (let r = 0; r < 9; r++) {
+    const seen = new Set();
+    for (let c = 0; c < 9; c++) {
+      const val = current[r][c];
+      if (seen.has(val)) return false; // Duplicate in row
+      seen.add(val);
+    }
+  }
+
+  // Check all columns
+  for (let c = 0; c < 9; c++) {
+    const seen = new Set();
+    for (let r = 0; r < 9; r++) {
+      const val = current[r][c];
+      if (seen.has(val)) return false; // Duplicate in column
+      seen.add(val);
+    }
+  }
+
+  // Check all 3x3 boxes
+  for (let boxRow = 0; boxRow < 9; boxRow += 3) {
+    for (let boxCol = 0; boxCol < 9; boxCol += 3) {
+      const seen = new Set();
+      for (let r = boxRow; r < boxRow + 3; r++) {
+        for (let c = boxCol; c < boxCol + 3; c++) {
+          const val = current[r][c];
+          if (seen.has(val)) return false; // Duplicate in box
+          seen.add(val);
+        }
+      }
+    }
+  }
+
+  // All cells are filled and valid - puzzle completed!
   console.log('🎉 Puzzle completed! Stopping timer and showing modal...');
   clearInterval(timerInterval);
+
+  // Disable game controls
+  disableGameControls();
 
   // Show completion modal with stats
   setTimeout(() => {
@@ -644,6 +919,10 @@ async function hint() {
   if (playerStats.hintsUsed >= limits.hints) {
     gameOver = true;
     clearInterval(timerInterval);
+
+    // Disable game controls
+    disableGameControls();
+
     setTimeout(() => {
       showGameOverModal('hints');
     }, 300);
@@ -738,6 +1017,9 @@ async function solve() {
     // Mark game as over
     gameOver = true;
 
+    // Disable game controls
+    disableGameControls();
+
     // Wait 1 second after animation completes, then show game over modal
     setTimeout(() => {
       showGameOverModal('autosolve');
@@ -748,6 +1030,10 @@ async function solve() {
     // Still show game over even if animation fails
     gameOver = true;
     clearInterval(timerInterval);
+
+    // Disable game controls
+    disableGameControls();
+
     setTimeout(() => {
       showGameOverModal('autosolve');
     }, 300);
@@ -860,15 +1146,30 @@ async function startGameWithDifficulty(difficulty) {
   }
 
   try {
-    let res = await fetch(`${API_BASE}/api/generate?difficulty=${encodeURIComponent(difficulty)}`);
-    if (!res.ok) {
-      res = await fetch(`${API_BASE}/api/generate`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ difficulty }) });
+    let data = null;
+
+    // Try to get puzzle from cache first (instant!)
+    const cachedPuzzle = puzzleCache.getPuzzle(difficulty);
+    if (cachedPuzzle) {
+      data = cachedPuzzle;
+      console.log('⚡ Using cached puzzle - instant load!');
+    } else {
+      // Cache miss - fetch from API
+      console.log('🌐 Fetching puzzle from API...');
+      let res = await fetch(`${API_BASE}/api/generate?difficulty=${encodeURIComponent(difficulty)}`);
+      if (!res.ok) {
+        res = await fetch(`${API_BASE}/api/generate`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ difficulty }) });
+      }
+      if (!res.ok) {
+        const txt = await res.text().catch(() => "<no body>");
+        throw new Error(`Generate failed (${res.status}): ${txt}`);
+      }
+      data = await res.json();
+
+      // Cache the fetched puzzle for next time
+      puzzleCache.addPuzzle(difficulty, data.puzzle, data.solution);
     }
-    if (!res.ok) {
-      const txt = await res.text().catch(() => "<no body>");
-      throw new Error(`Generate failed (${res.status}): ${txt}`);
-    }
-    const data = await res.json();
+
     puzzle = data.puzzle;
     solution = data.solution;
     current = puzzle.map(row => row.slice());
@@ -907,6 +1208,9 @@ async function startGameWithDifficulty(difficulty) {
 
     // Build fresh grid
     buildGrid();
+
+    // Enable game controls for new game
+    enableGameControls();
 
     // Reset and start timer with new difficulty time limit
     resetTimer();

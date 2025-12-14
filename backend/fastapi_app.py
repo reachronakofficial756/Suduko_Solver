@@ -9,6 +9,7 @@ from Sudoko_backend import (
     get_puzzle_stats, is_puzzle_complete, is_puzzle_correct,
     get_valid_numbers_for_cell
 )
+from puzzle_cache import get_cache
 
 
 # Types
@@ -103,6 +104,36 @@ app.add_middleware(
 )
 
 
+@app.on_event("startup")
+async def startup_event():
+    """Pre-fill the puzzle cache on startup for instant responses."""
+    print("🚀 Starting Sudoku API...")
+    cache = get_cache()
+    stats = cache.get_stats()
+    total_cached = sum(stats.values())
+    
+    if total_cached < 10:  # If cache is low, pre-fill it
+        print("📦 Pre-filling puzzle cache...")
+        # Pre-fill with 3 puzzles per difficulty for quick startup
+        cache.prefill_cache(count_per_difficulty=3)
+    else:
+        print(f"✅ Cache already filled with {total_cached} puzzles")
+    
+    print("✨ Sudoku API ready!")
+
+
+@app.get("/api/cache-stats")
+def cache_stats():
+    """Get current puzzle cache statistics."""
+    cache = get_cache()
+    stats = cache.get_stats()
+    return {
+        "stats": stats,
+        "total": sum(stats.values()),
+        "pool_size": cache.pool_size
+    }
+
+
 @app.get("/api/health")
 def health():
     return {"status": "ok"}
@@ -113,8 +144,10 @@ def generate(body: GenerateRequest):
     difficulty = (body.difficulty or "medium").lower()
     if difficulty not in {"easy", "medium", "hard", "expert"}:
         raise HTTPException(status_code=400, detail="difficulty must be one of: easy, medium, hard, expert")
-    game = SudokuGame()
-    puzzle, solution = game.new_game(difficulty)
+    
+    # Use cached puzzle for instant response
+    cache = get_cache()
+    puzzle, solution = cache.get_puzzle(difficulty)
     return {"puzzle": puzzle, "solution": solution, "difficulty": difficulty}
 
 
@@ -123,8 +156,10 @@ def generate_get(difficulty: Optional[str] = "medium"):
     difficulty_lc = (difficulty or "medium").lower()
     if difficulty_lc not in {"easy", "medium", "hard", "expert"}:
         raise HTTPException(status_code=400, detail="difficulty must be one of: easy, medium, hard, expert")
-    game = SudokuGame()
-    puzzle, solution = game.new_game(difficulty_lc)
+    
+    # Use cached puzzle for instant response
+    cache = get_cache()
+    puzzle, solution = cache.get_puzzle(difficulty_lc)
     return {"puzzle": puzzle, "solution": solution, "difficulty": difficulty_lc}
 
 
