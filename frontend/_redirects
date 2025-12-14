@@ -1,0 +1,5 @@
+# Netlify redirects file
+# This ensures that direct navigation to routes works properly
+
+# Default to index.html for root
+/  /index.html  200

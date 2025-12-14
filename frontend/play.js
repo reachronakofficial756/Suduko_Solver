@@ -143,15 +143,23 @@ function updateStatsDisplay() {
   if (strainDescEl) strainDescEl.textContent = getStrainDescription(playerStats.strainScore);
 
   const avgTimeEl = $('avgTimePerMove');
-  if (avgTimeEl && playerStats.totalMoves > 0) {
-    const avgTime = (playerStats.totalMoveTime / playerStats.totalMoves) / 1000;
-    avgTimeEl.textContent = `${avgTime.toFixed(1)}s`;
+  if (avgTimeEl) {
+    if (playerStats.totalMoves > 0) {
+      const avgTime = (playerStats.totalMoveTime / playerStats.totalMoves) / 1000;
+      avgTimeEl.textContent = `${avgTime.toFixed(1)}s`;
+    } else {
+      avgTimeEl.textContent = '0s';
+    }
   }
 
   const undoRateEl = $('undoRate');
-  if (undoRateEl && playerStats.totalMoves > 0) {
-    const rate = (playerStats.undoCount / playerStats.totalMoves) * 100;
-    undoRateEl.textContent = `${rate.toFixed(0)}%`;
+  if (undoRateEl) {
+    if (playerStats.totalMoves > 0) {
+      const rate = (playerStats.undoCount / playerStats.totalMoves) * 100;
+      undoRateEl.textContent = `${rate.toFixed(0)}%`;
+    } else {
+      undoRateEl.textContent = '0%';
+    }
   }
 
   const mistakesEl = $('mistakes');
@@ -160,9 +168,13 @@ function updateStatsDisplay() {
   }
 
   const hintDepEl = $('hintDependency');
-  if (hintDepEl && playerStats.totalMoves > 0) {
-    const dep = (playerStats.hintsUsed / playerStats.totalMoves) * 100;
-    hintDepEl.textContent = `${dep.toFixed(0)}%`;
+  if (hintDepEl) {
+    if (playerStats.totalMoves > 0) {
+      const dep = (playerStats.hintsUsed / playerStats.totalMoves) * 100;
+      hintDepEl.textContent = `${dep.toFixed(0)}%`;
+    } else {
+      hintDepEl.textContent = '0%';
+    }
   }
 }
 
@@ -178,9 +190,11 @@ function formatTime(ms) {
 function startTimer() {
   clearInterval(timerInterval);
   startTs = Date.now() - pausedTime;
-  $('timer').textContent = formatTime(pausedTime);
+  const timerEl = $('timer');
+  if (timerEl) timerEl.textContent = formatTime(pausedTime);
   timerInterval = setInterval(() => {
-    $('timer').textContent = formatTime(Date.now() - startTs);
+    const timerEl = $('timer');
+    if (timerEl) timerEl.textContent = formatTime(Date.now() - startTs);
   }, 1000);
 }
 
@@ -188,9 +202,11 @@ function resetTimer() {
   clearInterval(timerInterval);
   pausedTime = 0;
   startTs = Date.now();
-  $('timer').textContent = '00:00';
+  const timerEl = $('timer');
+  if (timerEl) timerEl.textContent = '00:00';
   timerInterval = setInterval(() => {
-    $('timer').textContent = formatTime(Date.now() - startTs);
+    const timerEl = $('timer');
+    if (timerEl) timerEl.textContent = formatTime(Date.now() - startTs);
   }, 1000);
 }
 
@@ -564,10 +580,22 @@ function togglePause() {
   if (isPaused) {
     pausedTime = Date.now() - startTs;
     clearInterval(timerInterval);
-    pauseBtn.querySelector('.icon').textContent = '▶';
+    // Update the icon span if it exists, otherwise update button directly
+    const iconSpan = pauseBtn.querySelector('.icon');
+    if (iconSpan) {
+      iconSpan.textContent = '▶';
+    } else {
+      pauseBtn.textContent = '▶';
+    }
   } else {
     startTimer();
-    pauseBtn.querySelector('.icon').textContent = '⏸';
+    // Update the icon span if it exists, otherwise update button directly
+    const iconSpan = pauseBtn.querySelector('.icon');
+    if (iconSpan) {
+      iconSpan.textContent = '⏸';
+    } else {
+      pauseBtn.textContent = '⏸';
+    }
   }
 }
 
@@ -809,6 +837,60 @@ function main() {
         hideDifficultyModal();
       });
     }
+  }
+
+  // Theme toggle button functionality
+  const themeToggleBtn = $('themeToggleBtn');
+
+  if (themeToggleBtn) {
+    const lightIcon = themeToggleBtn.querySelector('.theme-icon-light');
+    const darkIcon = themeToggleBtn.querySelector('.theme-icon-dark');
+
+    // Function to update icon based on current theme
+    function updateThemeIcon() {
+      const currentTheme = localStorage.getItem('theme') || 'dark';
+      console.log('Updating theme icon for theme:', currentTheme);
+
+      if (currentTheme === 'dark') {
+        // In dark mode, show sun icon (to switch to light)
+        if (lightIcon) lightIcon.style.display = 'block';
+        if (darkIcon) darkIcon.style.display = 'none';
+      } else {
+        // In light mode, show moon icon (to switch to dark)
+        if (lightIcon) lightIcon.style.display = 'none';
+        if (darkIcon) darkIcon.style.display = 'block';
+      }
+    }
+
+    // Update icon on page load
+    updateThemeIcon();
+
+    // Toggle theme on button click
+    themeToggleBtn.addEventListener('click', () => {
+      const currentTheme = localStorage.getItem('theme') || 'dark';
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+      console.log('Theme toggle clicked. Switching from', currentTheme, 'to', newTheme);
+
+      // Use theme manager if available
+      if (window.themeManager) {
+        window.themeManager.setTheme(newTheme);
+      } else {
+        // Fallback if theme manager not available
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+      }
+
+      // Update icon
+      updateThemeIcon();
+    });
+
+    // Listen for theme changes from other sources
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'theme') {
+        updateThemeIcon();
+      }
+    });
   }
 }
 

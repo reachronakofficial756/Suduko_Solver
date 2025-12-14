@@ -1,3 +1,4 @@
+/* ===== DARK THEME (Default) ===== */
 :root {
   --accent-blue: #4F8AFF;
   --error-red: #E94458;
@@ -5,11 +6,13 @@
   --deep-blue: #4A8FEF;
   --light-blue: #E8F1FF;
 
-  /* Grey Theme Background */
+  /* Dark Theme Background */
   --bg-gradient-start: #8e9eab;
   --bg-gradient-end: #2C3E50;
 
   --white: #FFFFFF;
+  --text-primary: #FFFFFF;
+  --text-secondary: rgba(255, 255, 255, 0.7);
   --text-dark: #2C3E50;
   --text-blue: #5B9FFF;
   --error-bg: #FFE5E8;
@@ -19,10 +22,78 @@
   /* Solid Grey for Header & Buttons */
   --glass-bg: #455A64;
   --glass-border: #546E7A;
+  --glass-hover: #546E7A;
 
-  --highlight-row-col: rgba(79, 138, 255, 0.08);
-  --highlight-box: rgba(79, 138, 255, 0.12);
-  --highlight-same: rgba(79, 138, 255, 0.15);
+  /* Grid Colors */
+  --grid-bg: #546e7a;
+  --grid-border: #263238;
+  --cell-bg: #546e7a;
+  --cell-border: #607d8b;
+  --cell-hover: #607d8b;
+  --cell-fixed-bg: #455A64;
+  --cell-fixed-text: #cfd8dc;
+  --cell-text: #FFFFFF;
+  --bold-border: #90a4ae;
+
+  /* Card Backgrounds */
+  --card-bg: rgba(132, 155, 167, 0.25);
+  --card-border: rgba(255, 255, 255, 0.3);
+
+  /* Input Panel */
+  --input-btn-bg: rgba(255, 255, 255, 0.2);
+  --input-btn-border: rgba(255, 255, 255, 0.3);
+  --input-btn-hover: rgba(255, 255, 255, 0.3);
+
+  --highlight-row-col: rgba(79, 138, 255, 0.15);
+  --highlight-box: rgba(79, 138, 255, 0.2);
+  --highlight-same: rgba(79, 138, 255, 0.25);
+}
+
+/* ===== LIGHT THEME ===== */
+[data-theme="light"] {
+  --accent-blue: #2563eb;
+  --error-red: #dc2626;
+  --primary-blue: #3b82f6;
+  --deep-blue: #1d4ed8;
+
+  /* Light Theme Background */
+  --bg-gradient-start: #e0f2fe;
+  --bg-gradient-end: #bae6fd;
+
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-dark: #0f172a;
+  --shadow: rgba(0, 0, 0, 0.1);
+  --shadow-lg: rgba(0, 0, 0, 0.15);
+
+  /* Light Glass Effect */
+  --glass-bg: rgba(255, 255, 255, 0.95);
+  --glass-border: rgba(148, 163, 184, 0.5);
+  --glass-hover: rgba(241, 245, 249, 1);
+
+  /* Grid Colors - Light - HIGH CONTRAST */
+  --grid-bg: #ffffff;
+  --grid-border: #1e293b;
+  --cell-bg: #ffffff;
+  --cell-border: #cbd5e1;
+  --cell-hover: #f1f5f9;
+  --cell-fixed-bg: #e0f2fe;
+  --cell-fixed-text: #1e40af;
+  --cell-text: #0f172a;
+  --bold-border: #64748b;
+
+  /* Card Backgrounds - Light */
+  --card-bg: rgba(255, 255, 255, 0.95);
+  --card-border: rgba(148, 163, 184, 0.5);
+
+  /* Input Panel - Light */
+  --input-btn-bg: rgba(255, 255, 255, 0.9);
+  --input-btn-border: rgba(148, 163, 184, 0.5);
+  --input-btn-hover: rgba(241, 245, 249, 1);
+
+  --highlight-row-col: rgba(37, 99, 235, 0.08);
+  --highlight-box: rgba(37, 99, 235, 0.12);
+  --highlight-same: rgba(37, 99, 235, 0.15);
 }
 
 * {
@@ -53,9 +124,10 @@
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   min-height: 100vh;
-  color: var(--text-dark);
+  color: var(--text-primary);
   overflow-x: hidden;
   position: relative;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Blurred Background Pseudo-element */
@@ -129,7 +201,7 @@ body::before {
 
 
 .app-title {
-  color: var(--white);
+  color: var(--text-primary);
   font-size: clamp(1.75rem, 4vw, 2.5rem);
   font-weight: 700;
   margin-bottom: 12px;
@@ -215,8 +287,8 @@ body::before {
   background: var(--glass-bg);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  color: var(--white);
-  border: 2px solid var(--white);
+  color: var(--text-primary);
+  border: 2px solid var(--text-primary);
 }
 
 .btn.secondary:hover {
@@ -292,7 +364,7 @@ body::before {
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  color: var(--white);
+  color: var(--text-primary);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -338,7 +410,7 @@ body::before {
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  color: var(--white);
+  color: var(--text-primary);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -370,7 +442,7 @@ body::before {
 .timer {
   font-size: 18px;
   font-weight: 700;
-  color: var(--white);
+  color: var(--text-primary);
   font-variant-numeric: tabular-nums;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
@@ -387,16 +459,17 @@ body::before {
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  color: var(--white);
+  color: var(--text-primary);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.2s ease;
+  margin-right: 10px;
 }
 
 .pause-btn .icon {
-  font-size: 16px;
+  font-size: 24px;
   line-height: 1;
   display: flex;
   align-items: center;
@@ -421,7 +494,7 @@ body::before {
   border: 1px solid var(--glass-border);
   border-radius: 16px;
   padding: 16px;
-  color: var(--white);
+  color: var(--text-primary);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
@@ -435,9 +508,9 @@ body::before {
 }
 
 .action-btn:hover {
-  background: #546E7A;
+  background: var(--glass-hover);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px var(--shadow);
 }
 
 .action-btn:active {
@@ -458,10 +531,10 @@ body::before {
 
 /* Game Card - Glassmorphic */
 .game-card {
-  background: rgba(132, 155, 167, 0.25);
+  background: var(--card-bg);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid var(--card-border);
   border-radius: 24px;
   padding: 24px;
   box-shadow: 0 8px 32px var(--shadow-lg);
@@ -474,8 +547,8 @@ body::before {
   text-align: center;
   font-size: 14px;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.7);
-  margin-top: 12px;
+  color: var(--text-secondary);
+  margin-top: 8px;
   margin-bottom: 12px;
   letter-spacing: 1px;
 }
@@ -492,8 +565,8 @@ body::before {
   grid-template-columns: repeat(9, 1fr);
   grid-template-rows: repeat(9, 1fr);
   gap: 0;
-  background: #546e7a;
-  border: 4px solid #263238;
+  background: var(--grid-bg);
+  border: 4px solid var(--grid-border);
   border-radius: 12px;
   overflow: hidden;
   aspect-ratio: 1;
@@ -509,9 +582,9 @@ body::before {
   justify-content: center;
   font-size: 20px;
   font-weight: 600;
-  color: #FFFFFF;
-  background: #546e7a;
-  border: 1px solid #607d8b;
+  color: var(--cell-text);
+  background: var(--cell-bg);
+  border: 1px solid var(--cell-border);
   cursor: pointer;
   transition: all 0.15s ease;
   position: relative;
@@ -519,28 +592,28 @@ body::before {
 }
 
 .cell:hover:not(.fixed) {
-  background: #607d8b;
+  background: var(--cell-hover);
 }
 
 /* Bold borders for 3x3 boxes */
 .cell.bold-right {
-  border-right: 2px solid #90a4ae;
+  border-right: 2px solid var(--bold-border);
 }
 
 .cell.bold-bottom {
-  border-bottom: 2px solid #90a4ae;
+  border-bottom: 2px solid var(--bold-border);
 }
 
 .cell.fixed {
-  color: #cfd8dc;
+  color: var(--cell-fixed-text);
   font-weight: 700;
   cursor: default;
-  background: #455A64;
+  background: var(--cell-fixed-bg);
 }
 
 .cell.selected {
   background: var(--accent-blue) !important;
-  color: var(--white) !important;
+  color: var(--text-primary) !important;
   border: 2px solid var(--accent-blue);
   z-index: 3;
   box-shadow: 0 0 0 2px rgba(79, 138, 255, 0.2);
@@ -662,12 +735,12 @@ body::before {
 .number-btn {
   aspect-ratio: 1;
   border-radius: 16px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  background: rgba(255, 255, 255, 0.2);
-  color: var(--white);
+  border: 2px solid var(--input-btn-border);
+  background: var(--input-btn-bg);
+  color: var(--text-primary);
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px var(--shadow);
   min-height: 60px;
   display: flex;
   flex-direction: column;
@@ -691,9 +764,9 @@ body::before {
 }
 
 .number-btn:hover:not(.completed) {
-  background: rgba(255, 255, 255, 0.3);
+  background: var(--input-btn-hover);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px var(--shadow);
 }
 
 .number-btn:active:not(.completed) {
@@ -750,14 +823,14 @@ body::before {
 .stats-card,
 .stepwise-card,
 .rules-card {
-  background: rgba(132, 155, 167, 0.25);
+  background: var(--card-bg);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid var(--card-border);
   border-radius: 20px;
   padding: 20px;
   box-shadow: 0 8px 32px var(--shadow-lg);
-  color: var(--white);
+  color: var(--text-primary);
 }
 
 /* Performance Card - Middle Column */
@@ -782,13 +855,13 @@ body::before {
   flex: 1;
   font-size: 16px;
   font-weight: 600;
-  color: var(--white);
+  color: var(--text-primary);
 }
 
 .stats-icon {
   width: 24px;
   height: 24px;
-  color: var(--white);
+  color: var(--text-primary);
 }
 
 .stats-close-btn {
@@ -797,7 +870,7 @@ body::before {
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  color: var(--white);
+  color: var(--text-primary);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -821,14 +894,14 @@ body::before {
 
 .strain-label {
   font-size: 14px;
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--text-secondary);
   margin-bottom: 8px;
 }
 
 .strain-value {
   font-size: 48px;
   font-weight: 700;
-  color: var(--white);
+  color: var(--text-primary);
   margin-bottom: 12px;
 }
 
@@ -850,7 +923,7 @@ body::before {
 
 .strain-description {
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--text-secondary);
 }
 
 .stats-metrics {
@@ -880,14 +953,14 @@ body::before {
 
 .metric-label {
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--text-secondary);
   margin-bottom: 4px;
 }
 
 .metric-value {
   font-size: 18px;
   font-weight: 600;
-  color: var(--white);
+  color: var(--text-primary);
 }
 
 /* My Moves Card - Right Column Top */
@@ -911,13 +984,13 @@ body::before {
   flex: 1;
   font-size: 16px;
   font-weight: 600;
-  color: var(--white);
+  color: var(--text-primary);
 }
 
 .stepwise-icon {
   width: 20px;
   height: 20px;
-  color: var(--white);
+  color: var(--text-primary);
 }
 
 .stepwise-close-btn {
@@ -926,7 +999,7 @@ body::before {
   border-radius: 6px;
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  color: var(--white);
+  color: var(--text-primary);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -952,7 +1025,7 @@ body::before {
   background: var(--accent-blue);
   border: none;
   border-radius: 8px;
-  color: var(--white);
+  color: var(--text-primary);
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
@@ -966,7 +1039,7 @@ body::before {
 
 .step-count {
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--text-secondary);
 }
 
 .stepwise-container {
@@ -985,7 +1058,7 @@ body::before {
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 8px;
-  color: var(--white);
+  color: var(--text-primary);
   cursor: pointer;
   transition: all 0.2s ease;
   font-size: 12px;
@@ -1007,12 +1080,12 @@ body::before {
   background: rgba(255, 255, 255, 0.05);
   border-radius: 8px;
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--text-secondary);
 }
 
 .stepwise-placeholder {
   text-align: center;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--text-secondary);
   padding: 20px;
 }
 
@@ -1040,7 +1113,7 @@ body::before {
   border-radius: 50%;
   font-size: 12px;
   font-weight: 700;
-  color: var(--white);
+  color: var(--text-primary);
   flex-shrink: 0;
 }
 
@@ -1053,13 +1126,13 @@ body::before {
 
 .step-position {
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--text-secondary);
 }
 
 .step-value {
   font-size: 16px;
   font-weight: 700;
-  color: var(--white);
+  color: var(--text-primary);
 }
 
 /* Rules Card - Right Column Bottom */
@@ -1081,13 +1154,13 @@ body::before {
   flex: 1;
   font-size: 16px;
   font-weight: 600;
-  color: var(--white);
+  color: var(--text-primary);
 }
 
 .rules-icon {
   width: 20px;
   height: 20px;
-  color: var(--white);
+  color: var(--text-primary);
 }
 
 .rules-content {
@@ -1099,7 +1172,7 @@ body::before {
 .rules-section h4 {
   font-size: 14px;
   font-weight: 600;
-  color: var(--white);
+  color: var(--text-primary);
   margin-bottom: 12px;
 }
 
@@ -1127,27 +1200,27 @@ body::before {
 
 .easy-badge {
   background: #4CAF50;
-  color: white;
+  color: var(--text-primary);
 }
 
 .medium-badge {
   background: #FF9800;
-  color: white;
+  color: var(--text-primary);
 }
 
 .hard-badge {
   background: #F44336;
-  color: white;
+  color: var(--text-primary);
 }
 
 .expert-badge {
   background: #9C27B0;
-  color: white;
+  color: var(--text-primary);
 }
 
 .target-time {
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--text-secondary);
 }
 
 .rules-list {
@@ -1159,7 +1232,7 @@ body::before {
 .rules-list li {
   padding: 8px 0;
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--text-secondary);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -1339,6 +1412,7 @@ body::before {
   .pause-btn {
     width: 36px;
     height: 36px;
+    margin-right: 5px;
   }
 
   .back-btn .icon {
@@ -1540,14 +1614,14 @@ body::before {
 .difficulty-modal-content h2 {
   font-size: 28px;
   font-weight: 700;
-  color: var(--white);
+  color: var(--text-primary);
   margin: 0 0 8px 0;
   text-align: center;
 }
 
 .difficulty-modal-content p {
   font-size: 14px;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--text-secondary);
   margin: 0 0 24px 0;
   text-align: center;
 }
@@ -1596,13 +1670,13 @@ body::before {
 .option-name {
   font-size: 18px;
   font-weight: 700;
-  color: var(--white);
+  color: var(--text-primary);
   margin-bottom: 4px;
 }
 
 .option-desc {
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--text-secondary);
 }
 
 .modal-actions {

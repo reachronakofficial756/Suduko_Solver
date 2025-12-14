@@ -1,0 +1,47 @@
+/* ===== LIGHT THEME SPECIFIC OVERRIDES ===== */
+[data-theme="light"] .modal-btn.cancel-btn {
+    background: rgba(0, 0, 0, 0.05);
+    color: #0f172a;
+    border: 2px solid rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .modal-btn.cancel-btn:hover {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .modal-btn.submit-btn {
+    background: var(--accent-blue);
+    color: white;
+}
+
+[data-theme="light"] .btn.secondary {
+    background: rgba(255, 255, 255, 0.9);
+    color: var(--accent-blue);
+    border: 2px solid var(--accent-blue);
+}
+
+[data-theme="light"] .btn.secondary:hover {
+    background: var(--accent-blue);
+    color: white;
+}
+
+[data-theme="light"] .cell.selected {
+    color: white !important;
+}
+
+[data-theme="light"] .difficulty-badge,
+[data-theme="light"] .easy-badge,
+[data-theme="light"] .medium-badge,
+[data-theme="light"] .hard-badge,
+[data-theme="light"] .expert-badge {
+    color: white;
+}
+
+[data-theme="light"] .stepwise-btn {
+    background: var(--accent-blue);
+    color: white;
+}
+
+[data-theme="light"] .action-btn.active {
+    color: white;
+}

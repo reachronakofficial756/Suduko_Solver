@@ -1,4 +1,4 @@
-(function(){
+(function () {
   const themeToggle = document.getElementById('themeToggle');
   const difficultySelect = document.getElementById('difficultySelect');
   const settingsBtn = document.getElementById('settingsBtn');
@@ -8,12 +8,10 @@
   const aboutUsBtn = document.getElementById('aboutUsBtn');
   const aboutUsContent = document.getElementById('aboutUsContent');
   const playGameBtn = document.getElementById('playGameBtn');
-  const newGameModal = document.getElementById('newGameModal');
   const howToPlayBtn = document.getElementById('howToPlayBtn');
   const howToPlayModal = document.getElementById('howToPlayModal');
   const closeHowToPlayModal = document.getElementById('closeHowToPlayModal');
   const backgroundMusic = document.getElementById('backgroundMusic');
-  const difficultyOptions = document.querySelectorAll('.difficulty-option');
 
   const savedTheme = localStorage.getItem('theme');
   if (savedTheme) document.body.setAttribute('data-theme', savedTheme);
@@ -83,7 +81,7 @@
   // Initialize background music - start on any page interaction
   if (backgroundMusic) {
     backgroundMusic.volume = 0.3; // Set volume to 30%
-    
+
     // Start music on first user interaction (anywhere on page, not just settings button)
     let musicStarted = false;
     const startMusicOnInteraction = () => {
@@ -95,12 +93,12 @@
         });
       }
     };
-    
+
     // Try to start on multiple events (using once: true ensures it only fires once)
     document.addEventListener('click', startMusicOnInteraction, { once: true });
     document.addEventListener('touchstart', startMusicOnInteraction, { once: true });
     document.addEventListener('keydown', startMusicOnInteraction, { once: true });
-    
+
     // Also try on window load (might work in some browsers)
     if (document.readyState === 'complete') {
       startMusicOnInteraction();
@@ -119,33 +117,9 @@
     }
   });
 
-  // New Game Modal Functionality (Bottom Sheet)
+  // Play Game Button - Direct redirect to play.html
   playGameBtn?.addEventListener('click', () => {
-    // Check if mobile - show bottom modal, else redirect directly
-    if (window.innerWidth <= 768) {
-      newGameModal.classList.add('show');
-      document.body.style.overflow = 'hidden';
-    } else {
-      // Desktop: redirect with current difficulty
-      const difficulty = difficultySelect?.value || 'medium';
-      window.location.href = `./play.html?difficulty=${difficulty}`;
-    }
-  });
-
-  // Close new game modal when clicking overlay
-  const modalOverlay = newGameModal?.querySelector('.modal-overlay');
-  modalOverlay?.addEventListener('click', () => {
-    newGameModal.classList.remove('show');
-    document.body.style.overflow = '';
-  });
-
-  // Difficulty option selection
-  difficultyOptions.forEach(option => {
-    option.addEventListener('click', () => {
-      const difficulty = option.getAttribute('data-difficulty');
-      localStorage.setItem('difficulty', difficulty);
-      window.location.href = `./play.html?difficulty=${difficulty}`;
-    });
+    window.location.href = './play.html';
   });
 
   // How to Play Modal Functionality
