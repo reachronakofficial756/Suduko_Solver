@@ -1871,8 +1871,8 @@ body::before {
 
   .difficulty-option {
     width: 120px;
-    height: 250px;
-    margin: 0 auto;
+    height: 140px;
+    margin-left: 6px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -1880,40 +1880,44 @@ body::before {
 
   .option-card {
     width: 110px;
-    height: 240px;
-    padding: 6px;
-    margin: 0;
+    height: 135px;
+    padding: 8px 6px;
+    margin: 0px 0px 0px 8px;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
   }
 
   .option-icon {
-    font-size: 28px;
-    margin-bottom: 6px;
+    font-size: 16px;
+    margin-bottom: 2px;
+    line-height: 1;
   }
 
   .option-name {
-    font-size: 14px;
-    margin-bottom: 3px;
+    font-size: 13px;
+    margin-bottom: 2px;
+    line-height: 1.1;
   }
 
   .option-desc {
-    font-size: 10px;
-    margin-bottom: 8px;
+    font-size: 9px;
+    margin-bottom: 4px;
+    line-height: 1.1;
   }
 
   .option-criteria {
-    margin-top: 6px;
-    padding-top: 8px;
-    gap: 4px;
+    margin-top: 2px;
+    padding-top: 4px;
+    gap: 2px;
     width: 100%;
   }
 
   .criteria-item {
-    font-size: 9px;
+    font-size: 8px;
     text-align: left;
+    line-height: 1.2;
   }
 
   .modal-actions {
