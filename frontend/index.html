@@ -5,7 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sudoku - Home</title>
-  <link rel="shortcut icon" href="Suduko_logo.svg" type="image/x-icon">
+  <link rel="shortcut icon" href="./Suduko_logo.svg" type="image/svg+xml">
 
   <!-- Preload critical resources -->
   <link rel="preload" href="./styles.css" as="style">
@@ -13,18 +13,26 @@
 
   <!-- Critical CSS for initial render (loading spinner) -->
   <style>
+    /* Spinner adapts to theme */
     #page-loader {
       position: fixed;
       top: 0;
       left: 0;
       width: 100vw;
       height: 100vh;
-      background: linear-gradient(180deg, #8e9eab 0%, #2C3E50 100%);
+      background: var(--bg-color, linear-gradient(180deg, #1a1a2e 0%, #16213e 100%));
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
+      gap: 20px;
       z-index: 9999;
       transition: opacity 0.3s ease;
+    }
+
+    /* Light theme spinner background */
+    [data-theme="light"] #page-loader {
+      background: linear-gradient(180deg, #f5f7fa 0%, #c3cfe2 100%);
     }
 
     #page-loader.hidden {
@@ -32,13 +40,40 @@
       pointer-events: none;
     }
 
+    .spinner-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
     .spinner {
-      width: 50px;
-      height: 50px;
-      border: 4px solid rgba(255, 255, 255, 0.3);
-      border-top: 4px solid #fff;
+      width: 60px;
+      height: 60px;
+      border: 5px solid var(--spinner-bg, rgba(255, 255, 255, 0.2));
+      border-top: 5px solid var(--spinner-color, #fff);
       border-radius: 50%;
       animation: spin 1s linear infinite;
+    }
+
+    /* Light theme spinner colors */
+    [data-theme="light"] .spinner {
+      border: 5px solid rgba(0, 0, 0, 0.1);
+      border-top: 5px solid #2C3E50;
+    }
+
+    .loader-text {
+      color: var(--text-color, #fff);
+      font-size: 16px;
+      font-weight: 500;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      letter-spacing: 0.5px;
+      text-align: center;
+    }
+
+    /* Light theme text color */
+    [data-theme="light"] .loader-text {
+      color: #2C3E50;
     }
 
     @keyframes spin {
@@ -61,7 +96,10 @@
 <body>
   <!-- Loading Spinner -->
   <div id="page-loader">
-    <div class="spinner"></div>
+    <div class="spinner-container">
+      <div class="spinner"></div>
+      <div class="loader-text">Loading...</div>
+    </div>
   </div>
 
   <div class="page">
