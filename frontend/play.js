@@ -647,10 +647,75 @@ function selectCell(r, c, el) {
 
   selected = [r, c];
   document.querySelectorAll('.cell').forEach(e => e.classList.remove('selected'));
-  el.classList.add('selected');
+  if (el) {
+    el.classList.add('selected');
+  } else {
+    // If no element provided, find it by data attributes
+    const cell = document.querySelector(`.cell[data-row="${r}"][data-col="${c}"]`);
+    if (cell) {
+      cell.classList.add('selected');
+    }
+  }
 
   // Apply smart highlighting
   applySmartHighlighting(r, c);
+}
+
+// Keyboard navigation functions
+function moveSelection(direction) {
+  if (isPaused) return;
+  
+  // If no cell is selected, select the first editable cell (or first cell if all are fixed)
+  if (!selected) {
+    const cells = document.querySelectorAll('.cell');
+    for (let i = 0; i < cells.length; i++) {
+      const cell = cells[i];
+      const r = parseInt(cell.dataset.row, 10);
+      const c = parseInt(cell.dataset.col, 10);
+      if (!fixed.has(cellKey(r, c))) {
+        selectCell(r, c, cell);
+        return;
+      }
+    }
+    // If all cells are fixed, just select the first one
+    if (cells.length > 0) {
+      const firstCell = cells[0];
+      const r = parseInt(firstCell.dataset.row, 10);
+      const c = parseInt(firstCell.dataset.col, 10);
+      selectCell(r, c, firstCell);
+    }
+    return;
+  }
+  
+  let [r, c] = selected;
+  
+  switch (direction) {
+    case 'ArrowUp':
+      r = Math.max(0, r - 1);
+      break;
+    case 'ArrowDown':
+      r = Math.min(8, r + 1);
+      break;
+    case 'ArrowLeft':
+      c = Math.max(0, c - 1);
+      break;
+    case 'ArrowRight':
+      c = Math.min(8, c + 1);
+      break;
+    default:
+      return;
+  }
+  
+  // Get the cell element at the new position
+  const cells = document.querySelectorAll('.cell');
+  const cellIdx = r * 9 + c;
+  const cellEl = cells[cellIdx];
+  
+  if (cellEl) {
+    selectCell(r, c, cellEl);
+    // Scroll cell into view if needed (for mobile/tablet)
+    cellEl.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+  }
 }
 
 function isValidPlacement(grid, row, col, num) {
@@ -1372,11 +1437,63 @@ function wireInputPanel() {
 
   window.addEventListener('keydown', (e) => {
     if (isPaused) return;
+    
+    // Arrow key navigation
+    if (e.key.startsWith('Arrow')) {
+      e.preventDefault(); // Prevent page scrolling
+      moveSelection(e.key);
+      return;
+    }
+    
+    // Number keys (0-9) for input
     if (e.key >= '0' && e.key <= '9') {
-      const n = parseInt(e.key, 10);
-      selectedNumber = n;
-      updateNumberPadSelection();
-      applyNumber(n);
+      // If no cell is selected, select the first editable cell
+      if (!selected) {
+        const cells = document.querySelectorAll('.cell');
+        for (let i = 0; i < cells.length; i++) {
+          const cell = cells[i];
+          const r = parseInt(cell.dataset.row, 10);
+          const c = parseInt(cell.dataset.col, 10);
+          if (!fixed.has(cellKey(r, c))) {
+            selectCell(r, c, cell);
+            break;
+          }
+        }
+        // If still no selection, select first cell anyway
+        if (!selected && cells.length > 0) {
+          const firstCell = cells[0];
+          const r = parseInt(firstCell.dataset.row, 10);
+          const c = parseInt(firstCell.dataset.col, 10);
+          selectCell(r, c, firstCell);
+        }
+      }
+      
+      // Only apply number if a cell is selected and it's not fixed
+      if (selected) {
+        const [r, c] = selected;
+        if (!fixed.has(cellKey(r, c))) {
+          const n = parseInt(e.key, 10);
+          selectedNumber = n;
+          updateNumberPadSelection();
+          applyNumber(n);
+        }
+      }
+      return;
+    }
+    
+    // Delete or Backspace to erase
+    if (e.key === 'Delete' || e.key === 'Backspace') {
+      e.preventDefault();
+      if (selected) {
+        const [r, c] = selected;
+        // Only erase if cell is not fixed
+        if (!fixed.has(cellKey(r, c))) {
+          selectedNumber = 0;
+          updateNumberPadSelection();
+          applyNumber(0);
+        }
+      }
+      return;
     }
   });
 }
