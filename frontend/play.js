@@ -200,6 +200,181 @@ setTimeout(() => {
   puzzleCache.warmupCache().catch(e => console.error('Cache warmup failed:', e));
 }, 1000);
 
+// ===== API INTEGRATION FUNCTIONS =====
+// These functions provide easy access to all backend API endpoints
+
+/**
+ * Solve a Sudoku puzzle using the backend solver
+ * @param {Array<Array<number>>} grid - The puzzle grid to solve
+ * @returns {Promise<{solved: boolean, solution: Array<Array<number>>|null}>}
+ */
+async function apiSolvePuzzle(grid) {
+  try {
+    const response = await fetch(`${API_BASE}/api/solve`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ grid })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Solve API failed: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error calling solve API:', error);
+    return { solved: false, solution: null };
+  }
+}
+
+/**
+ * Get a hint from the backend
+ * @param {Array<Array<number>>} grid - Current puzzle state
+ * @param {Array<Array<number>>} solution - The solution grid
+ * @returns {Promise<{has_hint: boolean, row: number|null, col: number|null, value: number|null}>}
+ */
+async function apiGetHint(grid, solution) {
+  try {
+    const response = await fetch(`${API_BASE}/api/hint`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ grid, solution })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Hint API failed: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error calling hint API:', error);
+    return { has_hint: false, row: null, col: null, value: null };
+  }
+}
+
+/**
+ * Get puzzle statistics from the backend
+ * @param {Array<Array<number>>} grid - The puzzle grid
+ * @returns {Promise<{filled_count: number, empty_count: number, total_cells: number, completion_percentage: number}>}
+ */
+async function apiGetPuzzleStats(grid) {
+  try {
+    const response = await fetch(`${API_BASE}/api/puzzle-stats`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ grid })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Puzzle stats API failed: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error calling puzzle-stats API:', error);
+    return { filled_count: 0, empty_count: 81, total_cells: 81, completion_percentage: 0 };
+  }
+}
+
+/**
+ * Validate if a puzzle is complete and correct using the backend
+ * @param {Array<Array<number>>} grid - The puzzle grid to validate
+ * @param {Array<Array<number>>|null} solution - Optional solution grid for correctness check
+ * @returns {Promise<{is_complete: boolean, is_correct: boolean|null, message: string}>}
+ */
+async function apiValidatePuzzle(grid, solution = null) {
+  try {
+    const response = await fetch(`${API_BASE}/api/validate-puzzle`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ grid, solution })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Validate puzzle API failed: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error calling validate-puzzle API:', error);
+    return { is_complete: false, is_correct: null, message: 'Validation failed' };
+  }
+}
+
+/**
+ * Get all valid numbers that can be placed in a specific cell
+ * @param {Array<Array<number>>} grid - The puzzle grid
+ * @param {number} row - Row index (0-8)
+ * @param {number} col - Column index (0-8)
+ * @returns {Promise<{valid_numbers: Array<number>, cell_value: number, is_filled: boolean}>}
+ */
+async function apiGetValidNumbers(grid, row, col) {
+  try {
+    const response = await fetch(`${API_BASE}/api/valid-numbers`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ grid, row, col })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Valid numbers API failed: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error calling valid-numbers API:', error);
+    return { valid_numbers: [], cell_value: 0, is_filled: false };
+  }
+}
+
+/**
+ * Check backend health status
+ * @returns {Promise<boolean>} True if backend is healthy
+ */
+async function apiCheckHealth() {
+  try {
+    const response = await fetch(`${API_BASE}/api/health`, { cache: 'no-store' });
+    return response.ok;
+  } catch (error) {
+    return false;
+  }
+}
+
+// ===== API USAGE EXAMPLES =====
+/*
+  All FastAPI backend endpoints are now integrated (except stepwise-path).
+  
+  Example Usage:
+  
+  1. Solve a puzzle:
+     const result = await apiSolvePuzzle(current);
+     if (result.solved) {
+       console.log('Solution:', result.solution);
+     }
+  
+  2. Get a hint:
+     const hint = await apiGetHint(current, solution);
+     if (hint.has_hint) {
+       console.log(`Hint: Place ${hint.value} at row ${hint.row}, col ${hint.col}`);
+     }
+  
+  3. Get puzzle statistics:
+     const stats = await apiGetPuzzleStats(current);
+     console.log(`Completion: ${stats.completion_percentage}%`);
+  
+  4. Validate puzzle:
+     const validation = await apiValidatePuzzle(current, solution);
+     console.log(validation.message);
+  
+  5. Get valid numbers for a cell:
+     const validNums = await apiGetValidNumbers(current, row, col);
+     console.log('Valid numbers:', validNums.valid_numbers);
+  
+  6. Check backend health:
+     const isHealthy = await apiCheckHealth();
+     console.log('Backend is', isHealthy ? 'online' : 'offline');
+*/
+
 let currentDifficulty = 'medium'; // Default
 let gameOver = false;
 let timeRemaining = 0; // Time remaining in milliseconds
@@ -664,7 +839,7 @@ function selectCell(r, c, el) {
 // Keyboard navigation functions
 function moveSelection(direction) {
   if (isPaused) return;
-  
+
   // If no cell is selected, select the first editable cell (or first cell if all are fixed)
   if (!selected) {
     const cells = document.querySelectorAll('.cell');
@@ -686,9 +861,9 @@ function moveSelection(direction) {
     }
     return;
   }
-  
+
   let [r, c] = selected;
-  
+
   switch (direction) {
     case 'ArrowUp':
       r = Math.max(0, r - 1);
@@ -705,12 +880,12 @@ function moveSelection(direction) {
     default:
       return;
   }
-  
+
   // Get the cell element at the new position
   const cells = document.querySelectorAll('.cell');
   const cellIdx = r * 9 + c;
   const cellEl = cells[cellIdx];
-  
+
   if (cellEl) {
     selectCell(r, c, cellEl);
     // Scroll cell into view if needed (for mobile/tablet)
@@ -1171,12 +1346,7 @@ async function animateSolve(solution) {
 }
 
 async function checkHealth() {
-  try {
-    const res = await fetch(`${API_BASE}/api/health`, { cache: 'no-store' });
-    if (!res.ok) return false;
-    const data = await res.json().catch(() => ({}));
-    return data && data.status === 'ok';
-  } catch { return false; }
+  return await apiCheckHealth();
 }
 
 async function detectApiBase() {
@@ -1437,14 +1607,14 @@ function wireInputPanel() {
 
   window.addEventListener('keydown', (e) => {
     if (isPaused) return;
-    
+
     // Arrow key navigation
     if (e.key.startsWith('Arrow')) {
       e.preventDefault(); // Prevent page scrolling
       moveSelection(e.key);
       return;
     }
-    
+
     // Number keys (0-9) for input
     if (e.key >= '0' && e.key <= '9') {
       // If no cell is selected, select the first editable cell
@@ -1467,7 +1637,7 @@ function wireInputPanel() {
           selectCell(r, c, firstCell);
         }
       }
-      
+
       // Only apply number if a cell is selected and it's not fixed
       if (selected) {
         const [r, c] = selected;
@@ -1480,7 +1650,7 @@ function wireInputPanel() {
       }
       return;
     }
-    
+
     // Delete or Backspace to erase
     if (e.key === 'Delete' || e.key === 'Backspace') {
       e.preventDefault();
@@ -1777,6 +1947,17 @@ function main() {
       }
     });
   }
+
+  // Log API integration status
+  console.log('✅ FastAPI Integration Complete!');
+  console.log('📡 Available API Functions:');
+  console.log('  - apiSolvePuzzle(grid)');
+  console.log('  - apiGetHint(grid, solution)');
+  console.log('  - apiGetPuzzleStats(grid)');
+  console.log('  - apiValidatePuzzle(grid, solution)');
+  console.log('  - apiGetValidNumbers(grid, row, col)');
+  console.log('  - apiCheckHealth()');
+  console.log('📖 See API_INTEGRATION.md for usage examples');
 }
 
 document.addEventListener('DOMContentLoaded', main);
